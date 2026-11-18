@@ -52,8 +52,9 @@ export function activate(planId: string): void {
   } catch {
     /* storage blocked — unlock lasts for this page view only */
   }
-  // Let every listening view (cards, dashboards) refresh instantly.
-  window.dispatchEvent(new CustomEvent('jobsji:subscribed', { detail: { planId } }));
+  // Dispatch on document (bubbles up to window) so every listening view
+  // — cards, slideover, dashboard — refreshes instantly.
+  document.dispatchEvent(new CustomEvent('jobsji:subscribed', { detail: { planId }, bubbles: true }));
 }
 
 /**
