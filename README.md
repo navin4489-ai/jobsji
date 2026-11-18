@@ -5,10 +5,11 @@ Free hosting on **GitHub Pages**, free custom-domain support for `jobsji.in`.
 
 | | |
 |---|---|
-| Live (launch) | https://navin4489-ai.github.io/jobsji/ |
-| Permanent domain | https://jobsji.in/ (DNS cutover runbook below) |
+| **Primary (production)** | https://jobsji.in/ |
+| Fallback (until DNS cutover) | https://navin4489-ai.github.io/jobsji/ |
 | Docs | [`docs/BRD.md`](docs/BRD.md) · [`docs/PLAN.md`](docs/PLAN.md) |
 | Stack | Astro 5 (SSG) · TypeScript strict · hand-rolled CSS · zero client frameworks |
+| Monitoring | Daily uptime smoke test (`.github/workflows/uptime.yml`) + Dependabot |
 
 ## Features
 

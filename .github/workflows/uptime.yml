@@ -1,0 +1,39 @@
+name: Uptime monitor
+
+# Production health check: verifies the live site responds and serves real content.
+# Runs twice daily + on demand. Fails the workflow (red X on the repo) if the site
+# is down, so you get an email from GitHub if anything breaks.
+on:
+  schedule:
+    - cron: '23 6,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check live endpoints
+        env:
+          SITE_URL: https://jobsji.in
+        run: |
+          set -euo pipefail
+          fail=0
+          for p in "/" "/jobs/" "/categories/" "/rss.xml" "/robots.txt" "/sitemap-index.xml"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' -L --max-time 30 "$SITE_URL$p" || echo 000)
+            echo "$p -> HTTP $code"
+            if [ "$code" != "200" ]; then fail=1; fi
+          done
+
+          echo "-- content assertions --"
+          html=$(curl -sS -L --max-time 30 "$SITE_URL/")
+          echo "$html" | grep -q "<h1" && echo "home: h1 OK" || { echo "home: h1 MISSING"; fail=1; }
+          echo "$html" | grep -q "data-job-card" && echo "home: job cards OK" || { echo "home: job cards MISSING"; fail=1; }
+
+          job=$(curl -sS -L --max-time 30 "$SITE_URL/jobs/" | grep -c "data-job-card" || true)
+          echo "jobs listing cards: $job"
+          if [ "$job" -lt 1 ]; then fail=1; fi
+
+          exit $fail
