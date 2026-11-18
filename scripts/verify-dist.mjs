@@ -66,7 +66,10 @@ for (const file of htmlFiles) {
 }
 
 // 3. JobPosting JSON-LD on every job page
-const jobPages = htmlFiles.filter((f) => f.replace(/\\/g, '/').includes('/dist/jobs/'));
+const jobPages = htmlFiles.filter((f) => {
+  const rel = f.replace(/\\/g, '/');
+  return rel.includes('/dist/jobs/') && !rel.endsWith('/dist/jobs/index.html');
+});
 if (jobPages.length === 0) errors.push('no job detail pages generated');
 for (const file of jobPages) {
   const rel = file.replace(DIST, 'dist');

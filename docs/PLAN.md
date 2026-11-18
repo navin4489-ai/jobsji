@@ -57,11 +57,11 @@ jobsji/
 │   ├── config/site.ts          # SITE_URL + BASE_PATH (env-overridable)
 │   ├── types.ts                # Job/Company/Category/Location types
 │   ├── data/{jobs,companies,categories,locations}.ts
-│   ├── lib/{links.ts,seo.ts,format.ts}
+│   ├── lib/{links.ts,seo.ts,format.ts,jobs.ts}
 │   ├── styles/global.css       # design tokens + components
 │   ├── layouts/BaseLayout.astro
-│   ├── components/  (Header, Footer, JobCard, FilterPanel, Meta, Breadcrumb,
-│   │                 Icon, Monogram, SectionHeading, CTA, EmptyState, …)
+│   ├── components/  (Header, Footer, JobCard, Breadcrumb, EmptyState,
+│   │                 SectionHeading, CTABand, Monogram, Icon)
 │   └── pages/
 │       ├── index.astro
 │       ├── jobs/index.astro  jobs/[slug].astro
@@ -69,7 +69,8 @@ jobsji/
 │       ├── locations/index.astro  locations/[slug].astro
 │       ├── employers.astro  about.astro  contact.astro
 │       ├── privacy.astro  terms.astro  404.astro
-│       └── rss.xml.ts
+│       └── rss.xml.ts  robots.txt.ts
+├── scripts/verify-dist.mjs     # post-build link/JSON-LD/sitemap audit
 ├── package.json  astro.config.mjs  tsconfig.json  README.md
 └── dist/                        # build output (git-ignored)
 ```
@@ -80,8 +81,7 @@ jobsji/
 |---|---|---|
 | Type/content check | `npm run check` (`astro check`) | local + CI |
 | Production build | `npm run build` | local + CI |
-| Internal link audit | script: every `href` in `dist/` resolves to a file/route | local |
-| SEO sanity | every `dist/jobs/*/index.html` has `JobPosting` JSON-LD | local |
+| Internal link + SEO audit | `npm run verify` (scripts/verify-dist.mjs: links, canonical, JobPosting JSON-LD, sitemap coverage, robots/RSS) | local |
 | Visual/responsive | manual pass at 320/768/1440 px | local |
 | Live smoke test | HTTP 200 + content assertions on deployed URL | post-deploy |
 | Lighthouse | ≥ 90 Perf/SEO/A11y on home + job detail | post-deploy |

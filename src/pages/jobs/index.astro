@@ -1,3 +1,4 @@
+---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import JobCard from '../../components/JobCard.astro';
 import EmptyState from '../../components/EmptyState.astro';
@@ -279,7 +280,9 @@ const jsonLd = [
         } else if (exp === '10+') {
           if (max < 10 && min < 10) return false;
         } else {
-          const [bandMin, bandMax] = exp.split('-').map(Number);
+          const parts = exp.split('-').map(Number);
+          const bandMin = parts[0] ?? 0;
+          const bandMax = parts[1] ?? 0;
           if (min > bandMax || max < bandMin) return false;
         }
       }
