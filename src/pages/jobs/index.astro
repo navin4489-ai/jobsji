@@ -85,7 +85,6 @@ const jsonLd = [
       <form class="searchbar mt-24" action={withBase('/jobs')} method="get" role="search">
         <label class="searchbar__field">
           <Icon name="search" />
-          <span class="visually-hidden">Keyword</span>
           <input type="search" name="q" placeholder="Job title, skill or company" autocomplete="off" />
         </label>
         <label class="searchbar__field">
@@ -122,6 +121,7 @@ const jsonLd = [
               type="search"
               id="f-keyword"
               name="q"
+              aria-label="Keyword: e.g. React, analyst"
               placeholder="e.g. React, analyst"
               autocomplete="off"
             />

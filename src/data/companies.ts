@@ -40,7 +40,7 @@ export const companies: Company[] = [
     about:
       'RetailLoop Commerce operates a marketplace and retail-tech stack powering D2C brands across India, with a hybrid work culture.',
     website: 'https://example.com/retailloop',
-    color: '#ea580c',
+    color: '#c2410c',
   },
   {
     slug: 'healthplus-clinics',
@@ -67,7 +67,7 @@ export const companies: Company[] = [
     about:
       'LogiTrail Logistics combines a trucking marketplace with owned fleet operations to move freight reliably for manufacturers and e-commerce.',
     website: 'https://example.com/logitrail',
-    color: '#ca8a04',
+    color: '#a16207',
   },
   {
     slug: 'analytiq-labs',
@@ -76,7 +76,7 @@ export const companies: Company[] = [
     about:
       'Analytiq Labs builds analytics and BI products that help consumer brands forecast demand and measure growth in real time.',
     website: 'https://example.com/analytiq',
-    color: '#0891b2',
+    color: '#0e7490',
   },
   {
     slug: 'brandwave-media',
@@ -103,7 +103,7 @@ export const companies: Company[] = [
     about:
       'ServX India provides omnichannel voice and chat support for global SaaS and e-commerce brands from Kolkata and Chennai.',
     website: 'https://example.com/servx',
-    color: '#059669',
+    color: '#047857',
   },
   {
     slug: 'urbanbasket-grocers',
@@ -112,7 +112,7 @@ export const companies: Company[] = [
     about:
       'UrbanBasket Grocers runs dark-store networks and quick-commerce operations across Delhi NCR and Jaipur.',
     website: 'https://example.com/urbanbasket',
-    color: '#65a30d',
+    color: '#4d7c0f',
   },
   {
     slug: 'skillmint-hr',

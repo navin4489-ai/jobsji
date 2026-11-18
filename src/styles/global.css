@@ -600,7 +600,7 @@ a.chip:hover {
 }
 
 .searchbar input::placeholder {
-  color: var(--slate-400);
+  color: var(--slate-500);
 }
 
 .searchbar select {
@@ -1062,6 +1062,11 @@ a.chip:hover {
   font-size: 0.82rem;
   font-weight: 650;
   color: var(--slate-600);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--slate-500);
 }
 
 .input,
@@ -1634,6 +1639,19 @@ a.chip:hover {
   color: var(--ink);
 }
 
+/* Inline links must be distinguishable from surrounding text (WCAG 1.4.1) */
+.doc p a,
+.doc li a,
+.note a,
+.faq details p a,
+.info-card p a,
+.prose a {
+  color: var(--brand-700);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ---------- Share row ---------- */
 .share-row {
   display: flex;
@@ -1694,6 +1712,11 @@ a.chip:hover {
   color: #fff;
 }
 
+.site-footer .chip--plain {
+  color: var(--slate-700);
+  background: #fff;
+}
+
 .footer-brand .brand {
   color: #fff;
   margin-bottom: 13px;
@@ -1714,11 +1737,14 @@ a.chip:hover {
   gap: 10px 22px;
   flex-wrap: wrap;
   font-size: 0.83rem;
-  color: var(--slate-500);
+  color: var(--slate-400);
 }
 
 .footer-bottom a {
   font-size: 0.83rem;
+  color: var(--slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ---------- Utilities ---------- */
