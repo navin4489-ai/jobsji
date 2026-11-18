@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { withBase } from '../lib/links';
+import { LANGS } from '../lib/i18n';
 
 interface Props {
   activePath: string;
@@ -9,11 +10,11 @@ interface Props {
 const { activePath } = Astro.props;
 
 const links = [
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/categories', label: 'Categories' },
-  { href: '/locations', label: 'Locations' },
-  { href: '/employers', label: 'Employers' },
-  { href: '/about', label: 'About' },
+  { href: '/jobs', label: 'Jobs', i18n: 'nav.jobs' },
+  { href: '/categories', label: 'Categories', i18n: 'nav.categories' },
+  { href: '/locations', label: 'Locations', i18n: 'nav.locations' },
+  { href: '/employers', label: 'Employers', i18n: 'nav.employers' },
+  { href: '/about', label: 'About', i18n: 'nav.about' },
 ];
 
 const isActive = (href: string) =>
@@ -33,6 +34,7 @@ const isActive = (href: string) =>
           <a
             href={withBase(link.href)}
             aria-current={isActive(link.href) ? 'page' : undefined}
+            data-i18n={link.i18n}
           >
             {link.label}
           </a>
@@ -41,10 +43,24 @@ const isActive = (href: string) =>
     </nav>
 
     <div class="header-actions">
-      <a class="btn btn-outline btn-sm" href={withBase('/employers')}>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        {
+          LANGS.map((lang) => (
+            <button
+              type="button"
+              data-lang-btn={lang.id}
+              aria-pressed={lang.id === 'en' ? 'true' : 'false'}
+              aria-label={lang.long}
+            >
+              {lang.label}
+            </button>
+          ))
+        }
+      </div>
+      <a class="btn btn-outline btn-sm" href={withBase('/employers')} data-i18n="nav.forEmployers">
         For Employers
       </a>
-      <a class="btn btn-primary btn-sm" href={withBase('/employers#post')}>
+      <a class="btn btn-primary btn-sm" href={withBase('/employers#post')} data-i18n="nav.postJob">
         Post a Job
       </a>
       <button

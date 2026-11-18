@@ -7,49 +7,108 @@ import Breadcrumb from '../../components/Breadcrumb.astro';
 import { activeJobs } from '../../lib/jobs';
 import { categories } from '../../data/categories';
 import { locations } from '../../data/locations';
+import { companyBySlug } from '../../data/companies';
+import { categoryBySlug } from '../../data/categories';
+import { locationBySlug } from '../../data/locations';
 import { breadcrumbJsonLd } from '../../lib/seo';
 import { withBase } from '../../lib/links';
+import {
+  EMPLOYMENT_TYPE_LABEL,
+  WORKPLACE_LABEL,
+  formatExperience,
+  formatSalary,
+  timeAgo,
+} from '../../lib/format';
 
 const allJobs = activeJobs();
 
-const typeOptions = [
-  { value: '', label: 'Any job type' },
-  { value: 'fulltime', label: 'Full-time' },
-  { value: 'parttime', label: 'Part-time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'internship', label: 'Internship' },
+const expOptions = [
+  { value: '', label: 'Any experience' },
+  { value: 'fresher', label: 'Fresher' },
+  { value: '1-3', label: '1 – 3 years' },
+  { value: '3-5', label: '3 – 5 years' },
+  { value: '5+', label: '5+ years' },
 ];
 
-const workplaceOptions = [
-  { value: '', label: 'Any work mode' },
-  { value: 'onsite', label: 'On-site' },
-  { value: 'hybrid', label: 'Hybrid' },
+const typeOptions = [
+  { value: 'fulltime', label: 'Full-time' },
+  { value: 'contract', label: 'Contract' },
   { value: 'remote', label: 'Remote' },
 ];
 
-const expOptions = [
-  { value: '', label: 'Any experience' },
-  { value: 'fresher', label: 'Fresher (0 yrs)' },
-  { value: '0-3', label: '0–3 years' },
-  { value: '3-5', label: '3–5 years' },
-  { value: '5-10', label: '5–10 years' },
-  { value: '10+', label: '10+ years' },
+const perkOptions = [
+  { value: 'free-visa', label: 'Free Visa' },
+  { value: 'flight-ticket', label: 'Flight Ticket' },
+  { value: 'accommodation', label: 'Accommodation' },
+  { value: 'food', label: 'Food Included' },
+  { value: 'immediate-joining', label: 'Immediate Joining' },
 ];
 
-const salaryOptions = [
-  { value: '', label: 'Any salary' },
-  { value: '300000', label: '₹3 LPA and above' },
-  { value: '500000', label: '₹5 LPA and above' },
-  { value: '800000', label: '₹8 LPA and above' },
-  { value: '1200000', label: '₹12 LPA and above' },
-  { value: '2000000', label: '₹20 LPA and above' },
-];
+const perkCounts = new Map(
+  perkOptions.map((p) => [p.value, allJobs.filter((job) => (job.perks ?? []).includes(p.value as never)).length]),
+);
 
 const sortOptions = [
   { value: 'relevance', label: 'Relevance' },
   { value: 'newest', label: 'Newest first' },
   { value: 'salary', label: 'Salary: high to low' },
 ];
+
+/* Full detail payload for the slide-over — one JSON blob, rendered client-side. */
+const details = allJobs.map((job) => {
+  const company = companyBySlug.get(job.companySlug);
+  const category = categoryBySlug.get(job.categorySlug);
+  const location = locationBySlug.get(job.locationSlug);
+  const isIndia = (job.country ?? 'india') === 'india';
+  const perks = (job.perks ?? []).map((perk) =>
+    perk === 'free-visa'
+      ? 'Free Visa'
+      : perk === 'flight-ticket'
+        ? 'Flight Ticket'
+        : perk === 'accommodation'
+          ? 'Accommodation'
+          : perk === 'food'
+            ? 'Food Included'
+            : 'Immediate Joining',
+  );
+  return {
+    slug: job.slug,
+    title: job.title,
+    company: company?.name ?? 'Hiring now',
+    companyVerified: Boolean(company?.verified),
+    category: category?.name ?? 'Jobs',
+    city: job.city,
+    locationName: location?.name ?? job.city,
+    country: job.country ?? 'india',
+    flag: job.flag ?? '🇮🇳',
+    workplace: WORKPLACE_LABEL[job.workplace],
+    employmentType: EMPLOYMENT_TYPE_LABEL[job.employmentType],
+    experience: formatExperience(job.experienceMin, job.experienceMax),
+    salary: formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod),
+    localSalary: job.localSalary ?? '',
+    currency: job.currency ?? '',
+    visaSponsored: Boolean(job.visaSponsored),
+    verified: Boolean(job.verified),
+    perks,
+    package: job.overseasPackage ?? null,
+    summary: job.summary,
+    description: job.description,
+    responsibilities: job.responsibilities,
+    requirements: job.requirements,
+    benefits: job.benefits,
+    skills: job.skills,
+    openings: job.openings,
+    posted: timeAgo(job.postedAt),
+    hrWhatsApp: job.hrWhatsApp ?? '',
+    hrPhone: job.hrPhone ?? '',
+    applyUrl: job.applyUrl ?? '',
+    applyEmail: job.applyEmail ?? '',
+    href: `/jobs/${job.slug}`,
+    isIndia,
+    urgent: Boolean(job.urgent),
+    featured: Boolean(job.featured),
+  };
+});
 
 const jsonLd = [
   breadcrumbJsonLd([
@@ -59,7 +118,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Latest jobs in India',
+    name: 'Latest jobs in India & abroad',
     url: '/jobs',
     numberOfItems: allJobs.length,
   },
@@ -67,25 +126,31 @@ const jsonLd = [
 ---
 
 <BaseLayout
-  title="Latest Jobs in India — Search by skill, city & salary"
-  description={`Browse ${allJobs.length}+ live job openings across India. Filter by category, location, salary, experience and work mode — free for job seekers on Jobsji.`}
+  title="Search Verified Jobs — India, Dubai, Uzbekistan, Saudi & Europe"
+  description={`Browse ${allJobs.length}+ live verified job openings across India, Dubai, Uzbekistan, Saudi Arabia, Qatar and Europe. Filter by region, visa perks, salary and experience — free for job seekers on Jobsji.`}
   path="/jobs"
   jsonLd={jsonLd}
 >
   <section class="page-head">
     <div class="container">
       <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Jobs' }]} />
-      <h1>Latest jobs in India</h1>
+      <h1 data-i18n="search.title">Find Your Next Job</h1>
       <p class="lead">
         {allJobs.length} live openings across {categories.length} categories and{' '}
-        {locations.length} locations. Use the filters to narrow down — every listing
-        includes salary, experience and work mode.
+        {locations.length} locations — India and abroad. Every listing shows real
+        salary, perks and verified-employer status.
       </p>
 
       <form class="searchbar mt-24" action={withBase('/jobs')} method="get" role="search">
         <label class="searchbar__field">
           <Icon name="search" />
-          <input type="search" name="q" placeholder="Job title, skill or company" autocomplete="off" />
+          <input
+            type="search"
+            name="q"
+            placeholder="Job title, skill or company"
+            data-i18n-placeholder="hero.searchPlaceholder"
+            autocomplete="off"
+          />
         </label>
         <label class="searchbar__field">
           <Icon name="map-pin" />
@@ -96,7 +161,7 @@ const jsonLd = [
           </select>
         </label>
         <button class="btn btn-primary btn-lg" type="submit">
-          <Icon name="search" /> Search
+          <Icon name="search" /> <span data-i18n="hero.searchBtn">Search Jobs</span>
         </button>
       </form>
     </div>
@@ -104,13 +169,24 @@ const jsonLd = [
 
   <section class="container section--tight">
     <div class="jobs-layout">
-      <!-- Filters -->
-      <aside class="filters" aria-label="Job filters">
+      <!-- Filters (sidebar on desktop, drawer on mobile) -->
+      <aside class="filters" aria-label="Job filters" data-filters>
         <div class="filters__head">
-          <h2><Icon name="filter" /> Filters</h2>
-          <button class="btn btn-ghost btn-sm" type="button" data-clear-filters>
-            Clear all
-          </button>
+          <h2><Icon name="filter" /> <span data-i18n="search.filters">Filters</span></h2>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn btn-ghost btn-sm" type="button" data-clear-filters data-i18n="search.clear">
+              Clear all
+            </button>
+            <button
+              class="slideover__close"
+              type="button"
+              data-close-filters
+              aria-label="Close filters"
+              style="display:none;"
+            >
+              <Icon name="x" />
+            </button>
+          </div>
         </div>
 
         <form id="job-filters">
@@ -121,10 +197,30 @@ const jsonLd = [
               type="search"
               id="f-keyword"
               name="q"
-              aria-label="Keyword: e.g. React, analyst"
-              placeholder="e.g. React, analyst"
+              placeholder="e.g. React, driver, nurse"
               autocomplete="off"
             />
+          </div>
+
+          <!-- Region: India vs International -->
+          <div class="filter-group">
+            <p class="filter-group__title" data-i18n="search.region">Region</p>
+            <div class="region-pills" role="group" aria-label="Region">
+              <button class="region-pill" type="button" data-region="" aria-pressed="true">All</button>
+              <button class="region-pill" type="button" data-region="india" aria-pressed="false" data-i18n="search.india">
+                India
+              </button>
+              <button
+                class="region-pill"
+                type="button"
+                data-region="international"
+                aria-pressed="false"
+                data-i18n="search.international"
+              >
+                International
+              </button>
+            </div>
+            <input type="hidden" name="region" id="f-region" value="" />
           </div>
 
           <div class="field">
@@ -144,36 +240,90 @@ const jsonLd = [
           </div>
 
           <div class="field">
-            <label for="f-workplace">Work mode</label>
-            <select class="select" id="f-workplace" name="workplace">
-              {workplaceOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
+            <label for="f-country">Country (abroad)</label>
+            <select class="select" id="f-country" name="country">
+              <option value="">Any country</option>
+              <option value="uae">Dubai / UAE</option>
+              <option value="uzbekistan">Uzbekistan</option>
+              <option value="saudi">Saudi Arabia</option>
+              <option value="qatar">Qatar</option>
+              <option value="gulf">All Gulf</option>
+              <option value="europe">Europe</option>
+              <option value="russia">Russia</option>
             </select>
           </div>
 
-          <div class="field">
-            <label for="f-type">Job type</label>
-            <select class="select" id="f-type" name="type">
-              {typeOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
-            </select>
+          <!-- Visa & Perks -->
+          <div class="filter-group">
+            <p class="filter-group__title" data-i18n="search.perks">Visa & Perks</p>
+            <div class="check-list">
+              {
+                perkOptions.map((perk) => (
+                  <label class="check">
+                    <input type="checkbox" name="perks" value={perk.value} />
+                    <span>{perk.label}</span>
+                    <span class="check__count">{perkCounts.get(perk.value) ?? 0}</span>
+                  </label>
+                ))
+              }
+            </div>
           </div>
 
-          <div class="field">
-            <label for="f-exp">Experience</label>
-            <select class="select" id="f-exp" name="exp">
-              {expOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
-            </select>
+          <!-- Salary range slider -->
+          <div class="filter-group">
+            <p class="filter-group__title" data-i18n="search.salary">Salary Range</p>
+            <div class="range-wrap">
+              <div class="range-values">
+                <span>Minimum</span>
+                <b data-salary-label>Any salary</b>
+              </div>
+              <input
+                class="range"
+                type="range"
+                id="f-salary"
+                name="salary"
+                min="0"
+                max="4000000"
+                step="100000"
+                value="0"
+                aria-label="Minimum salary in INR per year"
+              />
+            </div>
           </div>
 
-          <div class="field">
-            <label for="f-salary">Minimum salary</label>
-            <select class="select" id="f-salary" name="salary">
-              {salaryOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
-            </select>
+          <!-- Experience -->
+          <div class="filter-group">
+            <p class="filter-group__title" data-i18n="search.experience">Experience</p>
+            <div class="check-list">
+              {
+                expOptions.map((opt) => (
+                  <label class="check">
+                    <input type="radio" name="exp" value={opt.value} checked={opt.value === ''} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </div>
+
+          <!-- Job type -->
+          <div class="filter-group">
+            <p class="filter-group__title" data-i18n="search.jobType">Job Type</p>
+            <div class="check-list">
+              {
+                typeOptions.map((opt) => (
+                  <label class="check">
+                    <input type="checkbox" name="type" value={opt.value} />
+                    <span>{opt.label}</span>
+                  </label>
+                ))
+              }
+            </div>
           </div>
 
           <div class="filters__actions">
             <button class="btn btn-primary btn-block" type="button" data-apply-filters>
-              Apply filters
+              <span data-i18n="search.apply">Apply</span> filters
             </button>
           </div>
         </form>
@@ -185,11 +335,16 @@ const jsonLd = [
           <p class="results-count" data-results-count aria-live="polite">
             Showing <b>{allJobs.length}</b> jobs
           </p>
-          <div class="field" style="margin-top:0">
-            <label class="visually-hidden" for="f-sort">Sort by</label>
-            <select class="select" id="f-sort" name="sort" style="min-width:210px">
-              {sortOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
-            </select>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <button class="btn btn-outline btn-sm filters-toggle" type="button" data-open-filters>
+              <Icon name="filter" /> <span data-i18n="search.filters">Filters</span>
+            </button>
+            <div class="field" style="margin-top:0">
+              <label class="visually-hidden" for="f-sort">Sort by</label>
+              <select class="select" id="f-sort" name="sort" style="min-width:200px">
+                {sortOptions.map((opt) => <option value={opt.value}>{opt.label}</option>)}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -200,13 +355,13 @@ const jsonLd = [
         </noscript>
 
         <div class="jobs-list" data-jobs-list>
-          {allJobs.map((job) => <JobCard job={job} />)}
+          {allJobs.map((job) => <JobCard job={job} slideover />)}
         </div>
 
         <div data-empty-wrap hidden>
           <EmptyState
             title="No jobs match those filters"
-            message="Try widening the location or salary range — new roles are published daily."
+            message="Try widening the region, salary or perks — new verified roles are published daily."
             actionLabel="Clear filters"
             actionHref="/jobs"
           />
@@ -217,6 +372,30 @@ const jsonLd = [
       </div>
     </div>
   </section>
+
+  <!-- Job detail slide-over -->
+  <div class="slideover-backdrop" data-slideover-backdrop></div>
+  <aside
+    class="slideover"
+    data-slideover
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="slideover-title"
+    tabindex="-1"
+  >
+    <div class="slideover__head">
+      <div style="min-width:0">
+        <p class="muted" style="margin:0 0 4px;font-size:0.82rem;" data-slideover-company></p>
+        <h2 id="slideover-title" style="margin:0;font-size:1.25rem;" data-slideover-title></h2>
+      </div>
+      <button class="slideover__close" type="button" data-slideover-close aria-label="Close job details">
+        <Icon name="x" />
+      </button>
+    </div>
+    <div class="slideover__body" data-slideover-body></div>
+  </aside>
+
+  <script type="application/json" id="job-details" set:html={JSON.stringify(details).replace(/</g, '\\u003c')} />
 </BaseLayout>
 
 <script>
@@ -230,11 +409,50 @@ const jsonLd = [
   const sortSelect = document.querySelector<HTMLSelectElement>('#f-sort');
   const clearBtn = document.querySelector<HTMLButtonElement>('[data-clear-filters]');
   const applyBtn = document.querySelector<HTMLButtonElement>('[data-apply-filters]');
+  const regionInput = document.querySelector<HTMLInputElement>('#f-region');
+  const salaryRange = document.querySelector<HTMLInputElement>('#f-salary');
+  const salaryLabel = document.querySelector<HTMLElement>('[data-salary-label]');
+  const filters = document.querySelector<HTMLElement>('[data-filters]');
+  const openFiltersBtn = document.querySelector<HTMLButtonElement>('[data-open-filters]');
+  const closeFiltersBtn = document.querySelector<HTMLButtonElement>('[data-close-filters]');
 
   const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-job-card]'));
 
+  /* ---------- Salary helpers ---------- */
+  const formatLpa = (value: number): string => {
+    if (value === 0) return 'Any salary';
+    if (value >= 100000) {
+      const lpa = value / 100000;
+      return `₹${Number.isInteger(lpa) ? lpa : lpa.toFixed(1)} LPA`;
+    }
+    return `₹${Math.round(value / 1000)}k`;
+  };
+
+  const syncSalaryLabel = () => {
+    if (salaryRange && salaryLabel) {
+      salaryLabel.textContent = formatLpa(Number(salaryRange.value));
+      const pct = (Number(salaryRange.value) / Number(salaryRange.max)) * 100;
+      salaryRange.style.setProperty('--range-pct', `${pct}%`);
+    }
+  };
+
+  /* ---------- Mobile filter drawer ---------- */
+  const openDrawer = () => {
+    filters?.classList.add('is-open');
+    document.body.classList.add('modal-open');
+    if (closeFiltersBtn) closeFiltersBtn.style.display = 'grid';
+  };
+  const closeDrawer = () => {
+    filters?.classList.remove('is-open');
+    document.body.classList.remove('modal-open');
+  };
+  openFiltersBtn?.addEventListener('click', openDrawer);
+  closeFiltersBtn?.addEventListener('click', closeDrawer);
+
   if (list && pagination && resultsCount && emptyWrap && form) {
     let currentPage = 1;
+    /** Legacy ?workplace= links (footer) mapped onto the job-type checkboxes. */
+    let legacyWorkplace = '';
 
     const readState = () => new FormData(form);
 
@@ -243,14 +461,41 @@ const jsonLd = [
         ['q', form.elements.namedItem('q') as HTMLInputElement | null],
         ['category', form.elements.namedItem('category') as HTMLSelectElement | null],
         ['location', form.elements.namedItem('location') as HTMLSelectElement | null],
-        ['workplace', form.elements.namedItem('workplace') as HTMLSelectElement | null],
-        ['type', form.elements.namedItem('type') as HTMLSelectElement | null],
-        ['exp', form.elements.namedItem('exp') as HTMLSelectElement | null],
-        ['salary', form.elements.namedItem('salary') as HTMLSelectElement | null],
+        ['country', form.elements.namedItem('country') as HTMLSelectElement | null],
+        ['region', form.elements.namedItem('region') as HTMLInputElement | null],
+        ['exp', form.elements.namedItem('exp') as HTMLInputElement | null],
+        ['salary', form.elements.namedItem('salary') as HTMLInputElement | null],
       ];
       for (const [key, el] of fields) {
-        if (el) el.value = params.get(key) ?? '';
+        if (el) el.value = params.get(key) ?? (key === 'salary' ? '0' : '');
       }
+
+      // Region pills follow the hidden input.
+      const region = params.get('region') ?? '';
+      document.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((pill) => {
+        pill.setAttribute('aria-pressed', String(pill.dataset.region === region));
+      });
+
+      // Salary slider default.
+      const salary = params.get('salary');
+      if (salaryRange) salaryRange.value = salary && Number(salary) > 0 ? salary : '0';
+      syncSalaryLabel();
+
+      // Perks (multi).
+      const perks = (params.get('perks') ?? '').split(',').filter(Boolean);
+      form.querySelectorAll<HTMLInputElement>('input[name="perks"]').forEach((box) => {
+        box.checked = perks.includes(box.value);
+      });
+
+      // Job type (multi) — legacy workplace=remote maps onto the Remote box.
+      const types = (params.get('type') ?? '').split(',').filter(Boolean);
+      legacyWorkplace = params.get('workplace') ?? '';
+      form.querySelectorAll<HTMLInputElement>('input[name="type"]').forEach((box) => {
+        box.checked =
+          types.includes(box.value) ||
+          (box.value === 'remote' && legacyWorkplace === 'remote');
+      });
+
       if (sortSelect) sortSelect.value = params.get('sort') ?? 'relevance';
       const page = Number(params.get('page'));
       currentPage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
@@ -262,43 +507,87 @@ const jsonLd = [
         const haystack = card.dataset.search ?? '';
         if (!q.split(/\s+/).every((term) => haystack.includes(term))) return false;
       }
+
       const category = String(data.get('category') ?? '');
       if (category && card.dataset.category !== category) return false;
+
       const location = String(data.get('location') ?? '');
       if (location && card.dataset.location !== location) return false;
-      const workplace = String(data.get('workplace') ?? '');
-      if (workplace && card.dataset.workplace !== workplace) return false;
-      const type = String(data.get('type') ?? '');
-      if (type && card.dataset.type !== type) return false;
 
-      const exp = String(data.get('exp') ?? '');
+      // Region: india vs international (Russia counts as international).
+      const region = String(data.get('region') ?? '');
+      if (region) {
+        const isIndia = (card.dataset.country ?? 'india') === 'india';
+        if (region === 'india' && !isIndia) return false;
+        if (region === 'international' && isIndia) return false;
+      }
+
+      // Country (hero dropdown sends country=uae|uzbekistan|gulf|europe).
+      const country = String(data.get('country') ?? '');
+      if (country) {
+        const cardCountry = card.dataset.country ?? 'india';
+        if (country === 'gulf') {
+          if (!['uae', 'saudi', 'qatar'].includes(cardCountry)) return false;
+        } else if (country !== cardCountry) {
+          return false;
+        }
+      }
+
+      // Visa & perks — every selected perk must be present.
+      const perks = data.getAll('perks').map(String).filter(Boolean);
+      if (perks.length) {
+        const cardPerks = (card.dataset.perks ?? '').split(' ').filter(Boolean);
+        if (!perks.every((perk) => cardPerks.includes(perk))) return false;
+      }
+
+      // Job type (multi): fulltime / contract / remote.
+      const types = data.getAll('type').map(String).filter(Boolean);
+      if (types.length) {
+        const ok = types.some((type) =>
+          type === 'remote' ? card.dataset.workplace === 'remote' : card.dataset.type === type,
+        );
+        if (!ok) return false;
+      } else if (legacyWorkplace && card.dataset.workplace !== legacyWorkplace) {
+        // Legacy ?workplace=hybrid links still filter correctly.
+        return false;
+      }
+
+      // Experience bands (accepts legacy 0-3 / 5-10 / 10+ values too).
+      let exp = String(data.get('exp') ?? '');
+      if (exp === '0-3') exp = '1-3';
+      if (exp === '5-10' || exp === '10+') exp = '5+';
       if (exp) {
         const min = Number(card.dataset.expMin ?? 0);
         const max = Number(card.dataset.expMax ?? 0);
         if (exp === 'fresher') {
           if (min !== 0) return false;
-        } else if (exp === '10+') {
-          if (max < 10 && min < 10) return false;
+        } else if (exp === '5+') {
+          if (max < 5 && min < 5) return false;
         } else {
-          const parts = exp.split('-').map(Number);
-          const bandMin = parts[0] ?? 0;
-          const bandMax = parts[1] ?? 0;
+          const [bandMin = 0, bandMax = Number.MAX_SAFE_INTEGER] = exp.split('-').map(Number);
           if (min > bandMax || max < bandMin) return false;
         }
       }
 
-      const salary = String(data.get('salary') ?? '');
-      if (salary && Number(card.dataset.salaryMax ?? 0) < Number(salary)) return false;
+      // Salary slider — the role must reach the selected minimum.
+      const salary = Number(data.get('salary') ?? 0);
+      if (salary > 0 && Number(card.dataset.salaryMax ?? 0) < salary) return false;
 
       return true;
     };
 
     const syncUrl = (data: FormData) => {
       const params = new URLSearchParams();
-      for (const key of ['q', 'category', 'location', 'workplace', 'type', 'exp', 'salary']) {
+      for (const key of ['q', 'category', 'location', 'country', 'region', 'exp']) {
         const value = String(data.get(key) ?? '').trim();
         if (value) params.set(key, value);
       }
+      const perks = data.getAll('perks').map(String).filter(Boolean);
+      if (perks.length) params.set('perks', perks.join(','));
+      const types = data.getAll('type').map(String).filter(Boolean);
+      if (types.length) params.set('type', types.join(','));
+      const salary = Number(data.get('salary') ?? 0);
+      if (salary > 0) params.set('salary', String(salary));
       const sort = sortSelect?.value ?? 'relevance';
       if (sort && sort !== 'relevance') params.set('sort', sort);
       if (currentPage > 1) params.set('page', String(currentPage));
@@ -376,7 +665,6 @@ const jsonLd = [
       const start = (currentPage - 1) * PER_PAGE;
       const end = start + PER_PAGE;
 
-      // Reorder DOM: all filtered cards in sort order, unfiltered hidden at the end.
       const filteredSet = new Set(filtered);
       filtered.forEach((card) => list!.appendChild(card));
       cards.filter((card) => !filteredSet.has(card)).forEach((card) => list!.appendChild(card));
@@ -410,7 +698,12 @@ const jsonLd = [
     };
 
     // Wire controls
-    form.addEventListener('input', () => {
+    form.addEventListener('input', (e) => {
+      if (e.target === salaryRange) {
+        syncSalaryLabel();
+        apply();
+        return;
+      }
       currentPage = 1;
       apply();
     });
@@ -425,16 +718,276 @@ const jsonLd = [
     applyBtn?.addEventListener('click', () => {
       currentPage = 1;
       apply(true);
+      closeDrawer();
     });
     clearBtn?.addEventListener('click', () => {
       form.reset();
+      legacyWorkplace = '';
+      if (regionInput) regionInput.value = '';
+      document.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((pill) => {
+        pill.setAttribute('aria-pressed', String(pill.dataset.region === ''));
+      });
+      if (salaryRange) salaryRange.value = '0';
+      syncSalaryLabel();
       if (sortSelect) sortSelect.value = 'relevance';
       currentPage = 1;
       apply(true);
     });
 
-    // Initialise from URL (?q=&category=&location=&workplace=&type=&exp=&salary=&sort=&page=)
+    // Region pills → hidden input
+    document.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((pill) => {
+      pill.addEventListener('click', () => {
+        if (regionInput) regionInput.value = pill.dataset.region ?? '';
+        document.querySelectorAll<HTMLButtonElement>('[data-region]').forEach((other) => {
+          other.setAttribute('aria-pressed', String(other === pill));
+        });
+        currentPage = 1;
+        apply();
+      });
+    });
+
+    // Initialise from URL
     setControls(new URLSearchParams(window.location.search));
     apply();
   }
+
+  /* ============================================================
+     Job detail slide-over
+     ============================================================ */
+  const slideover = document.querySelector<HTMLElement>('[data-slideover]');
+  const backdrop = document.querySelector<HTMLElement>('[data-slideover-backdrop]');
+  const slideoverTitle = document.querySelector<HTMLElement>('[data-slideover-title]');
+  const slideoverCompany = document.querySelector<HTMLElement>('[data-slideover-company]');
+  const slideoverBody = document.querySelector<HTMLElement>('[data-slideover-body]');
+  const slideoverClose = document.querySelector<HTMLButtonElement>('[data-slideover-close]');
+  const detailsEl = document.getElementById('job-details');
+
+  type JobDetail = {
+    slug: string;
+    title: string;
+    company: string;
+    companyVerified: boolean;
+    category: string;
+    city: string;
+    flag: string;
+    workplace: string;
+    employmentType: string;
+    experience: string;
+    salary: string;
+    localSalary: string;
+    visaSponsored: boolean;
+    verified: boolean;
+    perks: string[];
+    package: Record<string, string> | null;
+    summary: string;
+    description: string;
+    responsibilities: string[];
+    requirements: string[];
+    benefits: string[];
+    skills: string[];
+    openings: number;
+    posted: string;
+    hrWhatsApp: string;
+    hrPhone: string;
+    applyUrl: string;
+    applyEmail: string;
+    href: string;
+    isIndia: boolean;
+    urgent: boolean;
+    featured: boolean;
+  };
+
+  let jobMap = new Map<string, JobDetail>();
+  try {
+    jobMap = new Map(
+      (JSON.parse(detailsEl?.textContent ?? '[]') as JobDetail[]).map((job) => [job.slug, job]),
+    );
+  } catch {
+    jobMap = new Map();
+  }
+
+  const esc = (value: string) =>
+    value.replace(
+      /[&<>"']/g,
+      (ch) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch] ?? ch,
+    );
+
+  const listItems = (heading: string, items: string[]) =>
+    items.length
+      ? `<h4>${esc(heading)}</h4><ul>${items.map((item) => `<li>${esc(item)}</li>`).join('')}</ul>`
+      : '';
+
+  const renderDetail = (job: JobDetail): string => {
+    const perksHtml = job.perks.length
+      ? `<div class="job-card__badges-row" style="margin:10px 0 0;">
+          ${job.visaSponsored && !job.isIndia ? '<span class="badge badge--visa">✓ Visa Sponsored</span>' : ''}
+          ${job.perks.map((perk) => `<span class="badge badge--country">${esc(perk)}</span>`).join('')}
+         </div>`
+      : '';
+
+    const pkg = job.package
+      ? `<h4>Salary & Package Breakdown</h4>
+         <div class="package-grid">
+           ${Object.entries(job.package)
+             .map(([key, value]) => {
+               const labels: Record<string, string> = {
+                 accommodation: 'Accommodation',
+                 food: 'Food',
+                 visa: 'Visa',
+                 transport: 'Transport',
+                 workingHours: 'Working Hours',
+                 contract: 'Contract',
+               };
+               return `<div class="package-item"><span class="label">${labels[key] ?? esc(key)}</span><span class="value">${esc(value)}</span></div>`;
+             })
+             .join('')}
+         </div>`
+      : '';
+
+    const salaryHtml = job.localSalary
+      ? `<div class="salary-dual" style="margin-bottom:6px;">
+           <b class="salary-dual__local">${esc(job.localSalary)}</b>
+           <span class="salary-dual__inr">${esc(job.salary)} approx.</span>
+         </div>`
+      : `<p style="font-weight:750;font-size:1.05rem;margin:0 0 6px;">${esc(job.salary)}</p>`;
+
+    const contactUnlocked =
+      typeof window !== 'undefined' &&
+      (() => {
+        try {
+          return localStorage.getItem('jobsji-plan') !== null;
+        } catch {
+          return false;
+        }
+      })();
+
+    const hrHtml =
+      job.hrWhatsApp || job.hrPhone
+        ? `<div class="hr-contact" data-hr-contact ${contactUnlocked ? '' : 'hidden'} style="margin-top:12px;">
+             <span class="hr-contact__label">Direct HR contact</span>
+             ${
+               job.hrWhatsApp
+                 ? `<a class="hr-contact__row" href="https://wa.me/${esc(job.hrWhatsApp.replace(/[^0-9]/g, ''))}?text=${encodeURIComponent(`Hi, I applied for ${job.title} on Jobsji.`)}" target="_blank" rel="noopener">📱 WhatsApp ${esc(job.hrWhatsApp)}</a>`
+                 : ''
+             }
+             ${
+               job.hrPhone
+                 ? `<a class="hr-contact__row" href="tel:${esc(job.hrPhone.replace(/\s/g, ''))}">☎ Call ${esc(job.hrPhone)}</a>`
+                 : ''
+             }
+           </div>`
+        : '';
+
+    const applyHref = job.applyUrl || (job.applyEmail ? `mailto:${job.applyEmail}` : job.href);
+
+    return `
+      <div class="job-card__badges-row" style="margin-bottom:12px;">
+        ${job.featured ? '<span class="badge badge--featured">★ Featured</span>' : ''}
+        ${job.urgent ? '<span class="badge badge--urgent">Urgent</span>' : ''}
+        ${job.verified ? '<span class="badge badge--verified">✓ Verified Employer</span>' : ''}
+        ${job.companyVerified ? '<span class="badge badge--verified">✓ Licence Checked</span>' : ''}
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:0.88rem;color:var(--muted);margin-bottom:14px;">
+        <span>📍 ${esc(job.flag)} ${esc(job.city)}</span>
+        <span>💼 ${esc(job.employmentType)} · ${esc(job.workplace)}</span>
+        <span>🎯 ${esc(job.experience)}</span>
+        <span>👥 ${job.openings} openings</span>
+        <span>🕐 Posted ${esc(job.posted)}</span>
+      </div>
+
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        ${salaryHtml}
+        ${perksHtml}
+      </div>
+
+      ${pkg}
+
+      <h4>About This Role</h4>
+      <p style="margin:0 0 6px;color:var(--slate-700);">${esc(job.summary)}</p>
+      <p style="margin:0;color:var(--muted);">${esc(job.description)}</p>
+
+      ${listItems('Responsibilities', job.responsibilities)}
+      ${listItems('Requirements', job.requirements)}
+      ${listItems('Benefits & Perks', job.benefits)}
+
+      <h4>Skills</h4>
+      <div class="job-card__skills" style="margin-bottom:6px;">
+        ${job.skills.map((skill) => `<span class="chip">${esc(skill)}</span>`).join('')}
+      </div>
+
+      <div class="apply-lock" style="margin-top:18px;" data-apply-lock>
+        ${
+          job.hrWhatsApp || job.hrPhone
+            ? `<p class="apply-lock__hint" data-lock-hint ${contactUnlocked ? 'hidden' : ''}>
+                 🔒 Subscribe to unlock direct HR contact, WhatsApp number and Apply Instantly.
+               </p>`
+            : ''
+        }
+        ${hrHtml}
+        <div style="display:grid;gap:10px;">
+          <a class="btn btn-primary" href="${esc(applyHref)}" ${job.applyUrl ? 'target="_blank" rel="noopener"' : ''} style="justify-content:center;min-height:50px;">
+            ⚡ Apply Now
+          </a>
+          ${
+            job.hrWhatsApp && !contactUnlocked
+              ? `<button class="btn btn-outline" type="button" data-unlock-btn style="justify-content:center;min-height:50px;">
+                   🔒 Unlock Direct HR WhatsApp
+                 </button>`
+              : ''
+          }
+          <a class="btn btn-ghost" href="${esc(job.href)}" style="justify-content:center;">
+            Open full page →
+          </a>
+        </div>
+      </div>
+    `;
+  };
+
+  let lastFocus: HTMLElement | null = null;
+  let openSlug = '';
+
+  const openSlideover = (slug: string) => {
+    const job = jobMap.get(slug);
+    if (!job || !slideover || !slideoverBody) return;
+    lastFocus = document.activeElement as HTMLElement;
+    openSlug = slug;
+    if (slideoverTitle) slideoverTitle.textContent = job.title;
+    if (slideoverCompany) {
+      slideoverCompany.textContent = `${job.company} · ${job.category}`;
+    }
+    slideoverBody.innerHTML = renderDetail(job);
+    slideoverBody.scrollTop = 0;
+    slideover.classList.add('is-open');
+    backdrop?.classList.add('is-open');
+    document.body.classList.add('slideover-open');
+    slideover.focus();
+  };
+
+  const closeSlideover = () => {
+    slideover?.classList.remove('is-open');
+    backdrop?.classList.remove('is-open');
+    document.body.classList.remove('slideover-open');
+    openSlug = '';
+    lastFocus?.focus();
+  };
+
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest<HTMLElement>('[data-open-slideover]');
+    if (trigger) {
+      e.preventDefault();
+      openSlideover(trigger.dataset.openSlideover ?? '');
+    }
+  });
+  slideoverClose?.addEventListener('click', closeSlideover);
+  backdrop?.addEventListener('click', closeSlideover);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && slideover?.classList.contains('is-open')) closeSlideover();
+  });
+
+  // Re-render the open slide-over when the visitor subscribes.
+  document.addEventListener('jobsji:subscribed', () => {
+    if (openSlug && slideover?.classList.contains('is-open')) openSlideover(openSlug);
+  });
 </script>

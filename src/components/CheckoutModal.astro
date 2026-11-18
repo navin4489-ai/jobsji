@@ -1,0 +1,321 @@
+---
+/**
+ * Checkout modal — rendered once in BaseLayout.
+ * Open it from anywhere with:  document.dispatchEvent(new CustomEvent('jobsji:checkout', { detail: { planId } }))
+ * Payments are simulated; see src/lib/checkout.ts for the Razorpay wire-up.
+ */
+import Icon from './Icon.astro';
+import { plans } from '../data/plans';
+---
+
+<div class="modal-backdrop" id="checkout-modal" data-checkout-modal hidden>
+  <div class="modal modal--wide" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+    <div class="modal__head">
+      <div>
+        <h2 id="checkout-title" data-i18n="checkout.title">Complete Your Subscription</h2>
+        <p class="muted" style="margin:0;font-size:0.86rem;">
+          No hidden agent fees. Direct company jobs.
+        </p>
+      </div>
+      <button class="slideover__close" type="button" data-checkout-close aria-label="Close checkout">
+        <Icon name="x" />
+      </button>
+    </div>
+
+    <div class="modal__body">
+      <!-- Step 1: pick a plan (pre-selected when opened from a CTA) -->
+      <div data-step="plan">
+        <div class="filter-group">
+          <p class="filter-group__title" data-i18n="section.pricingTitle">Choose your plan</p>
+          <div class="pay-methods" style="grid-template-columns:repeat(3,1fr);">
+            {
+              plans.map((plan) => (
+                <button
+                  class="pay-method"
+                  type="button"
+                  data-plan-pick={plan.id}
+                  aria-pressed={plan.popular ? 'true' : 'false'}
+                >
+                  <b style="font-family:var(--font-heading);font-size:1rem;">₹{plan.price}</b>
+                  <span>{plan.name}</span>
+                  <span style="font-size:0.7rem;font-weight:500;color:var(--slate-400);">{plan.periodLabel}</span>
+                </button>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="order-summary">
+          <div class="order-summary__row">
+            <span data-plan-name>Global Pro</span>
+            <b data-plan-price>₹499</b>
+          </div>
+          <div class="order-summary__row">
+            <span>Platform fee</span>
+            <b style="color:var(--green-700);">₹0</b>
+          </div>
+          <div class="order-summary__row is-total">
+            <span>Total</span>
+            <b data-plan-total>₹499</b>
+          </div>
+        </div>
+
+        <p class="value-note" style="margin-top:12px;">
+          <Icon name="shield" />
+          <span data-i18n="plan.noHiddenFees">No hidden agent fees. Direct company jobs.</span>
+        </p>
+
+        <button class="btn btn-primary" type="button" data-to-pay style="width:100%;margin-top:14px;min-height:50px;">
+          <span data-i18n="plan.subscribe">Subscribe Now</span> · <span data-plan-total-2>₹499</span>
+        </button>
+      </div>
+
+      <!-- Step 2: payment method -->
+      <div data-step="pay" hidden>
+        <p class="filter-group__title" data-i18n="checkout.payWith">Pay with</p>
+        <div class="pay-methods">
+          <button class="pay-method" type="button" data-pay-method="upi" aria-pressed="true">
+            <Icon name="smartphone" /> UPI
+          </button>
+          <button class="pay-method" type="button" data-pay-method="card" aria-pressed="false">
+            <Icon name="credit-card" /> Card
+          </button>
+          <button class="pay-method" type="button" data-pay-method="netbanking" aria-pressed="false">
+            <Icon name="building" /> NetBanking
+          </button>
+        </div>
+
+        <!-- UPI -->
+        <div class="pay-panel" data-panel="upi">
+          <div class="upi-apps">
+            <button class="upi-app" type="button" data-upi-app="Google Pay" aria-pressed="true">
+              <span class="upi-app__logo" style="background:#1a73e8;">G</span> Google Pay
+            </button>
+            <button class="upi-app" type="button" data-upi-app="PhonePe" aria-pressed="false">
+              <span class="upi-app__logo" style="background:#5f259f;">P</span> PhonePe
+            </button>
+            <button class="upi-app" type="button" data-upi-app="Paytm" aria-pressed="false">
+              <span class="upi-app__logo" style="background:#00baf2;">P</span> Paytm
+            </button>
+          </div>
+          <label class="field">
+            <span>Or enter your UPI ID</span>
+            <input type="text" inputmode="text" placeholder="yourname@upi" autocomplete="off" />
+          </label>
+        </div>
+
+        <!-- Card -->
+        <div class="pay-panel" data-panel="card" hidden>
+          <label class="field">
+            <span>Card number</span>
+            <input type="text" inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="19" data-card-number />
+          </label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <label class="field">
+              <span>Expiry</span>
+              <input type="text" inputmode="numeric" placeholder="MM/YY" autocomplete="cc-exp" maxlength="5" data-card-exp />
+            </label>
+            <label class="field">
+              <span>CVV</span>
+              <input type="password" inputmode="numeric" placeholder="•••" autocomplete="cc-csc" maxlength="4" data-card-cvv />
+            </label>
+          </div>
+          <label class="field">
+            <span>Name on card</span>
+            <input type="text" placeholder="AS PER CARD" autocomplete="cc-name" />
+          </label>
+        </div>
+
+        <!-- NetBanking -->
+        <div class="pay-panel" data-panel="netbanking" hidden>
+          <label class="field">
+            <span>Choose your bank</span>
+            <select class="select">
+              <option>HDFC Bank</option>
+              <option>State Bank of India</option>
+              <option>ICICI Bank</option>
+              <option>Axis Bank</option>
+              <option>Kotak Mahindra Bank</option>
+              <option>Punjab National Bank</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="order-summary" style="margin-top:16px;">
+          <div class="order-summary__row">
+            <span data-pay-plan>Global Pro · 3 months</span>
+            <b data-pay-price>₹499</b>
+          </div>
+          <div class="order-summary__row is-total">
+            <span data-i18n="checkout.summary">Amount payable</span>
+            <b data-pay-total>₹499</b>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:0.78rem;text-align:center;margin-top:10px;">
+          <Icon name="lock" size={13} /> <span data-i18n="checkout.secureNote">256-bit encrypted · Razorpay-grade security</span>
+        </p>
+
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button class="btn btn-outline" type="button" data-to-plan>Back</button>
+          <button class="btn btn-primary" type="button" data-pay-now style="flex:1;min-height:50px;">
+            <span data-pay-label data-i18n="checkout.pay">Pay Securely</span> · <span data-pay-total-2>₹499</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: success -->
+      <div data-step="done" hidden style="text-align:center;padding:14px 0;">
+        <div
+          style="width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:var(--green-50);display:grid;place-items:center;color:var(--green-600);"
+        >
+          <Icon name="check" size={30} />
+        </div>
+        <h3 style="margin-bottom:6px;">Payment successful 🎉</h3>
+        <p class="muted" data-i18n="checkout.success" style="margin:0 0 18px;">
+          Payment successful! Your plan is now active. Time to apply — best of luck!
+        </p>
+        <button class="btn btn-primary" type="button" data-checkout-close style="min-height:48px;">
+          <span data-i18n="cta.explore">Explore Jobs</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { planById } from '../data/plans';
+  import { processPayment, activate, type PaymentMethod } from '../lib/checkout';
+  import { toast } from '../lib/toast';
+  import type { Plan } from '../types';
+
+  const modal = document.getElementById('checkout-modal');
+  if (modal) {
+    const body = modal.querySelector<HTMLElement>('.modal__body')!;
+    const steps = {
+      plan: body.querySelector<HTMLElement>('[data-step="plan"]')!,
+      pay: body.querySelector<HTMLElement>('[data-step="pay"]')!,
+      done: body.querySelector<HTMLElement>('[data-step="done"]')!,
+    };
+    let selectedId: Plan['id'] = 'global-pro';
+    let method: PaymentMethod = 'upi';
+    let lastFocus: HTMLElement | null = null;
+
+    const show = (name: keyof typeof steps) => {
+      (Object.keys(steps) as (keyof typeof steps)[]).forEach((k) => {
+        steps[k].hidden = k !== name;
+      });
+    };
+
+    const renderPlan = () => {
+      const plan = planById.get(selectedId)!;
+      modal.querySelectorAll<HTMLElement>('[data-plan-name]').forEach((el) => (el.textContent = plan.name));
+      modal.querySelectorAll<HTMLElement>('[data-plan-price]').forEach((el) => (el.textContent = `₹${plan.price}`));
+      modal.querySelectorAll<HTMLElement>('[data-plan-total], [data-plan-total-2], [data-pay-total], [data-pay-total-2]').forEach(
+        (el) => (el.textContent = `₹${plan.price}`),
+      );
+      modal.querySelectorAll<HTMLElement>('[data-pay-plan]').forEach(
+        (el) => (el.textContent = `${plan.name} · ${plan.period}`),
+      );
+      modal.querySelectorAll<HTMLElement>('[data-pay-price]').forEach((el) => (el.textContent = `₹${plan.price}`));
+      modal.querySelectorAll<HTMLButtonElement>('[data-plan-pick]').forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.planPick === selectedId));
+      });
+    };
+
+    const open = (planId?: string) => {
+      lastFocus = document.activeElement as HTMLElement;
+      if (planId && planById.has(planId as Plan['id'])) selectedId = planId as Plan['id'];
+      renderPlan();
+      show('plan');
+      modal.hidden = false;
+      requestAnimationFrame(() => modal.classList.add('is-open'));
+      document.body.classList.add('modal-open');
+      modal.querySelector<HTMLElement>('[data-checkout-close]')?.focus();
+    };
+
+    const close = () => {
+      modal.classList.remove('is-open');
+      document.body.classList.remove('modal-open');
+      window.setTimeout(() => (modal.hidden = true), 220);
+      lastFocus?.focus();
+    };
+
+    // Open from any CTA on the site.
+    document.addEventListener('jobsji:checkout', (e) => {
+      open((e as CustomEvent<{ planId?: string }>).detail?.planId);
+    });
+
+    modal.querySelectorAll<HTMLElement>('[data-checkout-close]').forEach((el) => el.addEventListener('click', close));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+
+    // Plan picker → payment step
+    modal.querySelectorAll<HTMLButtonElement>('[data-plan-pick]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedId = (btn.dataset.planPick ?? selectedId) as Plan['id'];
+        renderPlan();
+      });
+    });
+    modal.querySelector('[data-to-pay]')?.addEventListener('click', () => show('pay'));
+    modal.querySelector('[data-to-plan]')?.addEventListener('click', () => show('plan'));
+
+    // Payment method tabs
+    modal.querySelectorAll<HTMLButtonElement>('[data-pay-method]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        method = (btn.dataset.payMethod ?? 'upi') as PaymentMethod;
+        modal.querySelectorAll<HTMLButtonElement>('[data-pay-method]').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+        modal.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
+          panel.hidden = panel.dataset.panel !== method;
+        });
+      });
+    });
+
+    // UPI app picker
+    modal.querySelectorAll<HTMLButtonElement>('[data-upi-app]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        modal.querySelectorAll<HTMLButtonElement>('[data-upi-app]').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+      });
+    });
+
+    // Card number spacing + expiry mask
+    const cardNumber = modal.querySelector<HTMLInputElement>('[data-card-number]');
+    cardNumber?.addEventListener('input', () => {
+      const digits = cardNumber.value.replace(/\D/g, '').slice(0, 16);
+      cardNumber.value = digits.replace(/(.{4})/g, '$1 ').trim();
+    });
+    const cardExp = modal.querySelector<HTMLInputElement>('[data-card-exp]');
+    cardExp?.addEventListener('input', () => {
+      const digits = cardExp.value.replace(/\D/g, '').slice(0, 4);
+      cardExp.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+    });
+
+    // Pay!
+    modal.querySelector('[data-pay-now]')?.addEventListener('click', async (e) => {
+      const btn = e.currentTarget as HTMLButtonElement;
+      const label = btn.querySelector<HTMLElement>('[data-pay-label]');
+      const original = label?.textContent ?? 'Pay Securely';
+      btn.disabled = true;
+      if (label) label.textContent = 'Processing…';
+      try {
+        await processPayment(planById.get(selectedId)!, method);
+        activate(selectedId);
+        show('done');
+        toast('Payment successful — your plan is active! 🎉', 'success');
+      } catch {
+        toast('Payment did not go through. Please try again.', 'error');
+        if (label) label.textContent = original;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+</script>

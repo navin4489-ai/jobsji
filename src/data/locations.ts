@@ -71,6 +71,88 @@ export const locations: Location[] = [
     description:
       'Location-independent roles open to candidates across India — async-first teams, national talent pools and no daily commute.',
   },
+
+  /* ---------- International (overseas) ---------- */
+  {
+    slug: 'dubai',
+    name: 'Dubai',
+    state: 'United Arab Emirates',
+    country: 'uae',
+    description:
+      'The Gulf’s hiring hub — tax-free salaries, world-class infrastructure and heavy demand for hospitality, construction, logistics, healthcare and IT professionals.',
+  },
+  {
+    slug: 'abu-dhabi',
+    name: 'Abu Dhabi',
+    state: 'United Arab Emirates',
+    country: 'uae',
+    description:
+      'The UAE capital with government, energy, healthcare and education employers offering stable contracts, housing allowances and family visas.',
+  },
+  {
+    slug: 'sharjah',
+    name: 'Sharjah',
+    state: 'United Arab Emirates',
+    country: 'uae',
+    description:
+      'A fast-growing industrial and education centre with manufacturing, logistics and teaching roles at a lower cost of living than Dubai.',
+  },
+  {
+    slug: 'tashkent',
+    name: 'Tashkent',
+    state: 'Uzbekistan',
+    country: 'uzbekistan',
+    description:
+      'Central Asia’s fastest-growing economy — IT, textiles, telecom and construction employers recruiting Indian talent with accommodation support.',
+  },
+  {
+    slug: 'samarkand',
+    name: 'Samarkand',
+    state: 'Uzbekistan',
+    country: 'uzbekistan',
+    description:
+      'A tourism and construction boom city with hospitality, skilled-trade and infrastructure projects hiring international crews.',
+  },
+  {
+    slug: 'riyadh',
+    name: 'Riyadh',
+    state: 'Saudi Arabia',
+    country: 'saudi',
+    description:
+      'Vision 2030’s engine room — massive demand for drivers, technicians, engineers, nurses and hospitality staff on tax-free packages.',
+  },
+  {
+    slug: 'jeddah',
+    name: 'Jeddah',
+    state: 'Saudi Arabia',
+    country: 'saudi',
+    description:
+      'The Kingdom’s commercial capital and gateway to Hajj/Umrah tourism — hotels, retail, healthcare and logistics roles year-round.',
+  },
+  {
+    slug: 'doha',
+    name: 'Doha',
+    state: 'Qatar',
+    country: 'qatar',
+    description:
+      'A high-income market with world-cup legacy infrastructure — construction, facilities, aviation, healthcare and IT openings.',
+  },
+  {
+    slug: 'moscow',
+    name: 'Moscow',
+    state: 'Russia',
+    country: 'russia',
+    description:
+      'Russia’s largest job market — engineering, manufacturing, IT and warehousing employers recruiting skilled Indian workers directly.',
+  },
+  {
+    slug: 'europe-remote',
+    name: 'Europe',
+    state: 'EU / UK',
+    country: 'europe',
+    description:
+      'Poland, Portugal, Germany, Romania and beyond — EU work permits, IT & engineering demand and long-term relocation pathways.',
+  },
 ];
 
 export const locationBySlug = new Map(locations.map((l) => [l.slug, l]));

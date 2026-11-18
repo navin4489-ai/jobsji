@@ -9,9 +9,11 @@ import Icon from './Icon.astro';
 
 interface Props {
   job: Job;
+  /** When true, clicking the title opens the detail slide-over instead of navigating. */
+  slideover?: boolean;
 }
 
-const { job } = Astro.props;
+const { job, slideover = false } = Astro.props;
 const company = companyBySlug.get(job.companySlug);
 const category = categoryBySlug.get(job.categorySlug);
 
@@ -19,6 +21,7 @@ const searchBlob = [
   job.title,
   company?.name ?? '',
   job.city,
+  job.country ?? 'india',
   category?.name ?? '',
   job.skills.join(' '),
 ]
@@ -28,6 +31,8 @@ const searchBlob = [
 const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod);
 const experience = formatExperience(job.experienceMin, job.experienceMax);
 const posted = timeAgo(job.postedAt);
+const isIndia = (job.country ?? 'india') === 'india';
+const hasHr = Boolean(job.hrWhatsApp || job.hrPhone);
 ---
 
 <article
@@ -38,47 +43,91 @@ const posted = timeAgo(job.postedAt);
   data-featured={job.featured ? '1' : '0'}
   data-category={job.categorySlug}
   data-location={job.locationSlug}
+  data-country={job.country ?? 'india'}
   data-workplace={job.workplace}
   data-type={job.employmentType}
   data-exp-min={job.experienceMin}
   data-exp-max={job.experienceMax}
+  data-salary-min={job.salaryMin}
   data-salary-max={job.salaryMax}
+  data-perks={(job.perks ?? []).join(' ')}
+  data-visa={job.visaSponsored ? '1' : '0'}
   data-posted={job.postedAt}
 >
   <div class="job-card__top">
     <div class="job-card__company">
-      <Monogram name={company?.name ?? job.title} color={company?.color ?? '#4f46e5'} />
+      <Monogram name={company?.name ?? job.title} color={company?.color ?? '#0F2942'} />
       <span class="job-card__company-name">{company?.name ?? 'Hiring now'}</span>
+      {company?.verified && (
+        <span class="badge badge--verified" title="Verified Employer">
+          <Icon name="shield" /> Verified
+        </span>
+      )}
     </div>
     <div class="job-card__badges">
-      {job.featured && <span class="chip chip--amber">★ Featured</span>}
-      {job.urgent && <span class="chip chip--red">Urgent</span>}
+      {job.featured && <span class="badge badge--featured">★ Featured</span>}
+      {job.urgent && <span class="badge badge--urgent">Urgent</span>}
     </div>
   </div>
 
   <h3 class="job-card__title">
-    <a href={withBase(`/jobs/${job.slug}`)}>{job.title}</a>
+    {
+      slideover ? (
+        <a href={withBase(`/jobs/${job.slug}`)} data-open-slideover={job.slug}>
+          {job.title}
+        </a>
+      ) : (
+        <a href={withBase(`/jobs/${job.slug}`)}>{job.title}</a>
+      )
+    }
   </h3>
 
   <div class="job-card__meta">
-    <span><Icon name="map-pin" /> {job.city} · {WORKPLACE_LABEL[job.workplace]}</span>
-    <span><Icon name="rupee" /> {salary}</span>
+    <span>
+      <Icon name="map-pin" />
+      <span class="flag">{job.flag ?? '🇮🇳'}</span> {job.city} · {WORKPLACE_LABEL[job.workplace]}
+    </span>
+    <span>
+      <Icon name="rupee" />
+      {
+        job.localSalary ? (
+          <span class="salary-dual">
+            <b class="salary-dual__local">{job.localSalary}</b>
+            <span class="salary-dual__inr">{salary} approx.</span>
+          </span>
+        ) : (
+          salary
+        )
+      }
+    </span>
     <span><Icon name="briefcase" /> {experience}</span>
+  </div>
+
+  <div class="job-card__badges-row">
+    {!isIndia && job.visaSponsored && (
+      <span class="badge badge--visa"><Icon name="check" /> Visa Sponsored</span>
+    )}
+    {
+      (job.perks ?? []).slice(0, 3).map((perk) => (
+        <span class="badge badge--country">
+          {perk === 'free-visa' && 'Free Visa'}
+          {perk === 'flight-ticket' && 'Flight Ticket'}
+          {perk === 'accommodation' && 'Accommodation'}
+          {perk === 'food' && 'Food Included'}
+          {perk === 'immediate-joining' && 'Immediate Joining'}
+        </span>
+      ))
+    }
+    {job.verified && !company?.verified && (
+      <span class="badge badge--verified"><Icon name="shield" /> Verified</span>
+    )}
   </div>
 
   <div class="job-card__skills">
     <span class="chip chip--brand">{category?.name ?? 'Jobs'}</span>
     <span class="chip chip--plain">{EMPLOYMENT_TYPE_LABEL[job.employmentType]}</span>
-    {
-      job.skills.slice(0, 2).map((skill) => (
-        <span class="chip">{skill}</span>
-      ))
-    }
-    {
-      job.skills.length > 2 && (
-        <span class="chip">+{job.skills.length - 2} more</span>
-      )
-    }
+    {job.skills.slice(0, 2).map((skill) => <span class="chip">{skill}</span>)}
+    {job.skills.length > 2 && <span class="chip">+{job.skills.length - 2} more</span>}
   </div>
 
   <div class="job-card__foot">
@@ -87,4 +136,37 @@ const posted = timeAgo(job.postedAt);
       {job.openings} {job.openings > 1 ? 'openings' : 'opening'}
     </span>
   </div>
+
+  {
+    hasHr && (
+      <div class="apply-lock" data-apply-lock data-hr-whatsapp={job.hrWhatsApp} data-hr-phone={job.hrPhone} data-job-title={job.title}>
+        <p class="apply-lock__hint" data-lock-hint>
+          <Icon name="lock" />
+          <span data-i18n="job.locked">Subscribe to unlock direct HR contact, WhatsApp number and Apply Instantly.</span>
+        </p>
+        <div class="hr-contact" data-hr-contact hidden>
+          <span class="hr-contact__label">Direct HR contact</span>
+          {job.hrWhatsApp && (
+            <a
+              class="hr-contact__row"
+              href={`https://wa.me/${job.hrWhatsApp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi, I applied for ${job.title} on Jobsji.`)}`}
+              target="_blank"
+              rel="noopener"
+            >
+              <Icon name="phone" /> WhatsApp {job.hrWhatsApp}
+            </a>
+          )}
+          {job.hrPhone && (
+            <a class="hr-contact__row" href={`tel:${job.hrPhone.replace(/\s/g, '')}`}>
+              <Icon name="phone" /> Call {job.hrPhone}
+            </a>
+          )}
+        </div>
+        <button class="btn btn-primary" type="button" data-unlock-btn>
+          <Icon name="lock" />
+          <span data-i18n="job.viewContact">View HR Contact & Apply</span>
+        </button>
+      </div>
+    )
+  }
 </article>

@@ -1,0 +1,43 @@
+---
+import Icon from './Icon.astro';
+import { withBase } from '../lib/links';
+
+interface Props {
+  activePath: string;
+}
+
+const { activePath } = Astro.props;
+
+const links = [
+  { href: '/', label: 'Home', i18n: 'nav.home', icon: 'home' },
+  { href: '/jobs', label: 'Search', i18n: 'nav.jobs', icon: 'search' },
+  { href: '/dashboard', label: 'Saved', i18n: 'dash.saved', icon: 'bookmark', accent: true },
+  { href: '/dashboard?tab=applications', label: 'Applied', i18n: 'dash.applications', icon: 'briefcase' },
+  { href: '/dashboard?tab=profile', label: 'Profile', i18n: 'dash.profile', icon: 'user' },
+];
+
+const isActive = (href: string) => {
+  const path = href.split('?')[0];
+  if (path === '/') return activePath === '/';
+  return activePath === path || activePath.startsWith(`${path}/`);
+};
+---
+
+<nav class="bottom-nav" aria-label="Quick navigation">
+  <div class="bottom-nav__inner">
+    {
+      links.map((link) => (
+        <a
+          href={withBase(link.href)}
+          aria-current={isActive(link.href) ? 'page' : undefined}
+          class:list={[link.accent && 'is-accent']}
+        >
+          <span class="bottom-nav__ico">
+            <Icon name={link.icon} />
+          </span>
+          <span data-i18n={link.i18n}>{link.label}</span>
+        </a>
+      ))
+    }
+  </div>
+</nav>

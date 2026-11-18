@@ -4,69 +4,72 @@ import JobCard from '../components/JobCard.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import CTABand from '../components/CTABand.astro';
 import Icon from '../components/Icon.astro';
-import { activeJobs, featuredJobs, newestJobs } from '../lib/jobs';
-import { categories } from '../data/categories';
-import { locations } from '../data/locations';
+import { activeJobs } from '../lib/jobs';
+import { plans } from '../data/plans';
+import { testimonials } from '../data/testimonials';
 import { organizationJsonLd, websiteJsonLd } from '../lib/seo';
 import { withBase } from '../lib/links';
 import { SITE_DESCRIPTION, SITE_TAGLINE } from '../config/site';
 
 const allJobs = activeJobs();
-const featured = featuredJobs(6);
-const latest = newestJobs(12);
-const featuredSlugs = new Set(featured.map((job) => job.slug));
-const homeJobs = [...featured, ...latest.filter((job) => !featuredSlugs.has(job.slug))].slice(0, 6);
 
-const categoryCounts = new Map(
-  categories.map((cat) => [cat.slug, allJobs.filter((job) => job.categorySlug === cat.slug).length]),
-);
-const locationCounts = new Map(
-  locations.map((loc) => [loc.slug, allJobs.filter((job) => job.locationSlug === loc.slug).length]),
-);
-const activeCompanies = new Set(allJobs.map((job) => job.companySlug)).size;
+/* 6 featured cards: 3 India + 3 abroad (per BRD §Phase 2). */
+const isIndia = (job: { country?: string }) => (job.country ?? 'india') === 'india';
+const featuredIndia = allJobs.filter((job) => job.featured && isIndia(job)).slice(0, 3);
+const featuredAbroad = allJobs.filter((job) => job.featured && !isIndia(job)).slice(0, 3);
+const featured = [...featuredIndia, ...featuredAbroad];
 
-const quickChips = [
-  { label: 'Remote jobs', href: '/jobs?workplace=remote' },
-  { label: 'Fresher jobs', href: '/jobs?exp=fresher' },
-  { label: 'IT jobs', href: '/jobs?category=software-development' },
-  { label: 'Delhi NCR', href: '/jobs?location=delhi-ncr' },
+/* Category chips shown under the hero (spec order). */
+const chips = [
+  { label: 'IT & Software', i18n: 'chip.it', href: '/jobs?category=software-development' },
+  { label: 'Construction & Engineering', i18n: 'chip.construction', href: '/jobs?category=construction-engineering' },
+  { label: 'Hospitality & Hotel', i18n: 'chip.hospitality', href: '/jobs?category=hospitality-hotel' },
+  { label: 'Healthcare & Nursing', i18n: 'chip.healthcare', href: '/jobs?category=healthcare-nursing' },
+  { label: 'Drivers & Logistics', i18n: 'chip.drivers', href: '/jobs?category=drivers-logistics' },
+  { label: 'Skilled Trades', i18n: 'chip.trades', href: '/jobs?category=skilled-trades' },
+  { label: 'Work From Home', i18n: 'chip.wfh', href: '/jobs?category=work-from-home' },
+];
+
+/* Hero location dropdown — mix of cities, countries and regions (spec). */
+const heroLocations = [
+  { value: '', label: 'All India' },
+  { value: 'location=delhi-ncr', label: 'Delhi NCR' },
+  { value: 'location=mumbai', label: 'Mumbai' },
+  { value: 'location=bengaluru', label: 'Bengaluru' },
+  { value: 'country=uae', label: 'Dubai (UAE)' },
+  { value: 'country=uzbekistan', label: 'Uzbekistan' },
+  { value: 'country=gulf', label: 'Gulf' },
+  { value: 'country=europe', label: 'Europe' },
+];
+
+const trust = [
+  { i18n: 'trust.jobs', title: '15,000+ Active Jobs', sub: 'Updated every day', icon: 'briefcase', tone: '' },
+  { i18n: 'trust.verified', title: '100% Verified Employers', sub: 'Trade licence checked', icon: 'shield', tone: 'trust' },
+  { i18n: 'trust.visa', title: 'Visa & Relocation Support', sub: 'Flights, permit & paperwork', icon: 'globe', tone: 'cta' },
+  { i18n: 'trust.hr', title: 'Direct HR Contact', sub: 'WhatsApp the hiring manager', icon: 'headset', tone: 'trust' },
 ];
 
 const steps = [
   {
-    title: 'Search',
-    text: 'Filter live openings by skill, city, salary, experience and work mode — results update instantly.',
+    icon: 'search',
+    title: 'Search & Shortlist',
+    i18nTitle: 'section.how1Title',
+    text: 'Filter by skill, city, salary and country — India, Dubai, Uzbekistan, Saudi, Qatar and Europe in one place.',
+    i18nText: 'section.how1Text',
   },
   {
-    title: 'Compare',
-    text: 'Every listing shows salary bands, openings and posted date, so you never apply blind.',
+    icon: 'users',
+    title: 'Verify & Connect',
+    i18nTitle: 'section.how2Title',
+    text: 'Every employer is licence-checked. Subscribe once to unlock direct HR WhatsApp and phone numbers.',
+    i18nText: 'section.how2Text',
   },
   {
-    title: 'Apply',
-    text: 'Apply straight to the employer by email or their ATS — free for candidates, always.',
-  },
-];
-
-const features = [
-  {
-    icon: 'user',
-    title: 'Fresher friendly',
-    text: 'Entry-level roles and internships surface first when you filter for zero experience.',
-  },
-  {
-    icon: 'rupee',
-    title: 'Salary on every card',
-    text: 'Real pay bands in LPA on each listing — no vague “competitive salary” placeholders.',
-  },
-  {
-    icon: 'shield',
-    title: 'Free for job seekers',
-    text: 'Jobsji never charges candidates and never asks you to pay to apply. Ever.',
-  },
-  {
-    icon: 'check',
-    title: 'Reviewed listings',
-    text: 'Every employer submission is editorially reviewed before it goes live on Jobsji.',
+    icon: 'send',
+    title: 'Apply & Fly',
+    i18nTitle: 'section.how3Title',
+    text: 'Apply instantly, track every stage in your dashboard, and get visa & relocation support when you go global.',
+    i18nText: 'section.how3Text',
   },
 ];
 
@@ -74,7 +77,7 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
 ---
 
 <BaseLayout
-  title="Jobsji — Find jobs that match your skills"
+  title="Jobsji — Verified Jobs in India, Dubai, Uzbekistan & Beyond"
   description={SITE_DESCRIPTION}
   path="/"
   jsonLd={homeJsonLd}
@@ -83,45 +86,48 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
   <section class="hero">
     <div class="container hero__inner">
       <span class="eyebrow">
-        <Icon name="sparkles" /> India’s job discovery portal
+        <Icon name="sparkles" />
+        <span data-i18n="hero.kicker">Verified Jobs Across India & Abroad</span>
       </span>
       <div>
-        <h1>Find jobs that match <em>your skills</em></h1>
-        <p class="lead">
-          {SITE_TAGLINE} — explore {allJobs.length}+ live openings across India’s
-          top cities, categories and work modes. Salary-first listings for freshers
-          and experienced professionals.
+        <h1 data-i18n="hero.title">Land Verified Jobs in India, Dubai, Uzbekistan &amp; Beyond</h1>
+        <p class="lead" data-i18n="hero.subtitle">
+          100% verified employers, direct HR contact and visa support — with zero hidden agent fees.
+          Apka Career, Ab Global.
         </p>
+        <p class="tagline">{SITE_TAGLINE}</p>
       </div>
 
-      <form class="searchbar" action={withBase('/jobs')} method="get" role="search">
+      <form class="searchbar" id="hero-search" role="search">
         <label class="searchbar__field">
           <Icon name="search" />
+          <span class="visually-hidden">Job title or skill</span>
           <input
             type="search"
             name="q"
-            placeholder="Job title, skill or company"
+            placeholder="Job title or skill…"
+            data-i18n-placeholder="hero.searchPlaceholder"
             autocomplete="off"
           />
         </label>
         <label class="searchbar__field">
           <Icon name="map-pin" />
           <span class="visually-hidden">Location</span>
-          <select name="location">
-            <option value="">All locations</option>
-            {locations.map((loc) => <option value={loc.slug}>{loc.name}</option>)}
+          <select name="loc" id="hero-loc">
+            {heroLocations.map((loc) => <option value={loc.value}>{loc.label}</option>)}
           </select>
         </label>
         <button class="btn btn-primary btn-lg" type="submit">
-          <Icon name="search" /> Search jobs
+          <Icon name="search" />
+          <span data-i18n="hero.searchBtn">Search Jobs</span>
         </button>
       </form>
 
-      <p class="quick-chips">
-        <span>Trending:</span>
+      <p class="quick-chips chip-row">
+        <span data-i18n="hero.popular">Popular:</span>
         {
-          quickChips.map((chip) => (
-            <a class="chip" href={withBase(chip.href)}>
+          chips.map((chip) => (
+            <a class="chip chip--lg" href={withBase(chip.href)} data-i18n={chip.i18n}>
               {chip.label}
             </a>
           ))
@@ -130,128 +136,132 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
     </div>
   </section>
 
-  <!-- Stats -->
-  <section class="container section--tight" aria-label="Jobsji at a glance">
-    <div class="stats">
-      <div class="stat"><b>{allJobs.length}+</b><span>Live jobs</span></div>
-      <div class="stat"><b>{activeCompanies}+</b><span>Hiring companies</span></div>
-      <div class="stat"><b>{locations.length}</b><span>Locations covered</span></div>
-      <div class="stat"><b>{categories.length}</b><span>Job categories</span></div>
+  <!-- Trust strip -->
+  <section class="container section--tight" aria-label="Why trust Jobsji">
+    <div class="trust-strip">
+      {
+        trust.map((item) => (
+          <div class="trust-item">
+            <span class:list={['trust-item__ico', item.tone && `trust-item__ico--${item.tone}`]}>
+              <Icon name={item.icon} />
+            </span>
+            <div>
+              <b data-i18n={item.i18n}>{item.title}</b>
+              <span>{item.sub}</span>
+            </div>
+          </div>
+        ))
+      }
     </div>
   </section>
 
-  <!-- Jobs -->
+  <!-- Featured: 3 India + 3 abroad -->
   <section class="container section--tight">
     <SectionHeading
-      kicker="Fresh openings"
-      title="Latest jobs on Jobsji"
-      subtitle="Hand-reviewed listings with real salary bands — updated as employers publish."
+      kicker="Hand-picked openings"
+      title="Featured Jobs This Week"
+      subtitle="3 roles in India and 3 international roles with visa sponsorship — every employer verified."
     >
       <a class="btn btn-outline" href={withBase('/jobs')}>
-        View all jobs <Icon name="arrow-right" />
+        <span data-i18n="section.viewAll">View all jobs</span> <Icon name="arrow-right" />
       </a>
     </SectionHeading>
     <div class="grid-cards">
-      {homeJobs.map((job) => <JobCard job={job} />)}
+      {featured.map((job) => <JobCard job={job} />)}
     </div>
   </section>
 
-  <!-- Categories -->
+  <!-- How it works -->
   <section class="section section--alt">
     <div class="container">
       <SectionHeading
-        kicker="Browse by skill"
-        title="Top job categories"
-        subtitle="Every category page is a curated landing spot with its own live feed."
-      >
-        <a class="btn btn-outline" href={withBase('/categories')}>
-          All categories <Icon name="arrow-right" />
-        </a>
-      </SectionHeading>
-      <div class="grid-cards">
+        kicker="Simple & transparent"
+        title="How It Works"
+        subtitle="Three easy steps from search to offer letter — we stay with you till you fly."
+      />
+      <div class="how-grid">
         {
-          categories.map((cat) => (
-            <a class="tile" href={withBase(`/categories/${cat.slug}`)}>
-              <div class="tile__head">
-                <span class="tile__icon">
-                  <Icon name={cat.icon} />
-                </span>
-                <span class="tile__count">{categoryCounts.get(cat.slug) ?? 0} jobs</span>
-              </div>
-              <h3>{cat.name}</h3>
-              <p>{cat.description}</p>
-            </a>
+          steps.map((step) => (
+            <div class="how-step">
+              <span class="how-step__ico">
+                <Icon name={step.icon} />
+              </span>
+              <h3 data-i18n={step.i18nTitle}>{step.title}</h3>
+              <p data-i18n={step.i18nText}>{step.text}</p>
+            </div>
           ))
         }
       </div>
     </div>
   </section>
 
-  <!-- How it works -->
-  <section class="container section">
+  <!-- Pricing -->
+  <section class="container section" id="pricing">
     <SectionHeading
-      kicker="How it works"
-      title="Three steps to your next role"
-      subtitle="No signup, no fees, no spam — search, compare and apply."
+      kicker="Choose your plan"
+      title="Simple Plans, Big Opportunities"
+      subtitle="Unlock direct HR contacts, priority applications and international job alerts."
     />
-    <div class="steps">
+    <div class="pricing">
       {
-        steps.map((step, index) => (
-          <div class="step">
-            <span class="step__num">{index + 1}</span>
-            <h3>{step.title}</h3>
-            <p>{step.text}</p>
+        plans.map((plan) => (
+          <div class:list={['price-card', plan.popular && 'price-card--featured price-card--popular']}>
+            {plan.popular && <span class="price-card__tag chip chip--amber" data-i18n="plan.mostPopular">Most Popular</span>}
+            <h3>{plan.name}</h3>
+            <div class="price-card__price-row">
+              <span class="price">
+                ₹{plan.price}
+                <small>{plan.periodLabel}</small>
+              </span>
+            </div>
+            <p>{plan.blurb}</p>
+            <ul>
+              {plan.features.map((feature) => (
+                <li>
+                  <Icon name="check" />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <button class="btn btn-primary" type="button" data-buy-plan={plan.id}>
+              <span data-i18n="plan.subscribe">Subscribe Now</span>
+            </button>
           </div>
         ))
       }
     </div>
-
-    <div class="section-head mt-32">
-      <div>
-        <span class="kicker">Why Jobsji</span>
-        <h2>Built for the way India hunts jobs</h2>
-      </div>
-    </div>
-    <div class="features">
-      {
-        features.map((feature) => (
-          <div class="feature">
-            <span class="feature__icon">
-              <Icon name={feature.icon} />
-            </span>
-            <h3>{feature.title}</h3>
-            <p>{feature.text}</p>
-          </div>
-        ))
-      }
-    </div>
+    <p class="value-note" style="max-width:560px;margin:22px auto 0;justify-content:center;">
+      <Icon name="shield" />
+      <span data-i18n="plan.noHiddenFees">No hidden agent fees. Direct company jobs.</span>
+    </p>
   </section>
 
-  <!-- Locations -->
+  <!-- Testimonials -->
   <section class="section section--alt">
     <div class="container">
       <SectionHeading
-        kicker="Hiring cities"
-        title="Jobs by location"
-        subtitle="From metro hubs to rising tier-2 cities — plus fully remote roles."
-      >
-        <a class="btn btn-outline" href={withBase('/locations')}>
-          All locations <Icon name="arrow-right" />
-        </a>
-      </SectionHeading>
-      <div class="grid-cards">
+        kicker="Real people, real offers"
+        title="Candidates Who Made It"
+        subtitle="Bengaluru to Dubai to Tashkent — apka career, ab global."
+      />
+      <div class="testimonial-grid">
         {
-          locations.map((loc) => (
-            <a class="tile" href={withBase(`/locations/${loc.slug}`)}>
-              <div class="tile__head">
-                <span class="tile__icon">
-                  <Icon name={loc.slug === 'remote-india' ? 'globe' : 'map-pin'} />
-                </span>
-                <span class="tile__count">{locationCounts.get(loc.slug) ?? 0} jobs</span>
+          testimonials.map((t) => (
+            <figure class="testimonial">
+              <div class="testimonial__stars" aria-label="5 out of 5 stars">
+                ★★★★★
               </div>
-              <h3>{loc.name}</h3>
-              <p>{loc.description.split('. ')[0]}.</p>
-            </a>
+              <blockquote class="testimonial__quote">{t.quote}</blockquote>
+              <figcaption class="testimonial__person">
+                <span class="testimonial__avatar">{t.avatar}</span>
+                <div>
+                  <b>{t.name}</b>
+                  <span>
+                    {t.role} · <span class="flag">{t.flag}</span> {t.placedIn}
+                  </span>
+                </div>
+              </figcaption>
+            </figure>
           ))
         }
       </div>
@@ -262,10 +272,37 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
   <CTABand
     kicker="For employers"
     title="Hiring? Get your role in front of thousands of candidates"
-    text="Publish on Jobsji and reach job seekers across India — listings are reviewed within one business day. Free to start, featured plans available."
+    text="Publish on Jobsji and reach job seekers across India and abroad — listings are reviewed within one business day. Verify your business licence to earn the Verified Employer badge."
     primaryLabel="Post a job"
     primaryHref="/employers#post"
     secondaryLabel="See pricing"
     secondaryHref="/employers#pricing"
   />
+
+  <script>
+    // Hero search → /jobs with q + location/country params.
+    const heroForm = document.getElementById('hero-search') as HTMLFormElement | null;
+    heroForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = (heroForm.querySelector('input[name="q"]') as HTMLInputElement).value.trim();
+      const extra = (heroForm.querySelector('select[name="loc"]') as HTMLSelectElement).value;
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (extra) {
+        const [key, value] = extra.split('=');
+        if (key && value) params.set(key, value);
+      }
+      const suffix = params.toString();
+      window.location.href = `/jobs${suffix ? `?${suffix}` : ''}`;
+    });
+
+    // Pricing CTAs open the checkout modal with the chosen plan.
+    document.querySelectorAll<HTMLButtonElement>('[data-buy-plan]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.dispatchEvent(
+          new CustomEvent('jobsji:checkout', { detail: { planId: btn.dataset.buyPlan } }),
+        );
+      });
+    });
+  </script>
 </BaseLayout>

@@ -4,7 +4,6 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import Icon from '../components/Icon.astro';
 import { breadcrumbJsonLd } from '../lib/seo';
 import { CONTACT_EMAIL, SITE_NAME } from '../config/site';
-import { withBase } from '../lib/links';
 
 const pricing = [
   {
@@ -85,6 +84,26 @@ const postJsonLd = [
     description: 'Post jobs on Jobsji — free and featured listing plans for Indian employers.',
   },
 ];
+
+/* Sample subscribed candidates employers can filter through. */
+const candidates = [
+  { name: 'Ravi Kumar', skills: ['React', 'Node.js', 'SQL'], country: 'india', exp: 3, passport: true, stage: 'subscribed' },
+  { name: 'Aisha Verma', skills: ['AutoCAD', 'Site Management'], country: 'uae', exp: 7, passport: true, stage: 'subscribed' },
+  { name: 'Mohammed Irfan', skills: ['Heavy Driving', 'Logistics'], country: 'saudi', exp: 5, passport: true, stage: 'subscribed' },
+  { name: 'Sneha Patil', skills: ['ICU Care', 'Patient Monitoring'], country: 'qatar', exp: 4, passport: true, stage: 'subscribed' },
+  { name: 'Arjun Nair', skills: ['Welding', 'Blueprint Reading'], country: 'uzbekistan', exp: 3, passport: false, stage: 'subscribed' },
+  { name: 'Priya Menon', skills: ['Java', 'Spring Boot', 'AWS'], country: 'india', exp: 6, passport: true, stage: 'subscribed' },
+];
+
+const candidateCountries: Record<string, string> = {
+  india: '🇮🇳 India',
+  uae: '🇦🇪 Dubai / UAE',
+  saudi: '🇸🇦 Saudi Arabia',
+  qatar: '🇶🇦 Qatar',
+  uzbekistan: '🇺🇿 Uzbekistan',
+  europe: '🇵🇱 Europe',
+  russia: '🇷🇺 Russia',
+};
 ---
 
 <BaseLayout
@@ -96,16 +115,22 @@ const postJsonLd = [
   <section class="page-head">
     <div class="container">
       <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Employers' }]} />
-      <h1>Hire faster with Jobsji</h1>
-      <p class="lead">
-        Get your openings in front of job seekers across India — reviewed by a human,
-        live within a business day, and free to start.
-      </p>
-      <div class="form-actions">
-        <a class="btn btn-primary btn-lg" href="#post">
-          <Icon name="send" /> Post a job now
-        </a>
-        <a class="btn btn-outline btn-lg" href="#pricing">See pricing</a>
+      <div class="employer-hero">
+        <span class="license-badge"><Icon name="shield" /> Verified employers only</span>
+        <h1 data-i18n="emp.title" style="margin-top:14px;">Hire Verified Talent — India &amp; Abroad</h1>
+        <p>
+          Reach thousands of job seekers across India, Dubai, Uzbekistan, Saudi Arabia,
+          Qatar and Europe. Every listing is reviewed by a human, live within a business
+          day — and free to start.
+        </p>
+        <div class="form-actions">
+          <a class="btn btn-primary btn-lg" href="#post">
+            <Icon name="send" /> <span data-i18n="emp.postCta">Post a Job Free</span>
+          </a>
+          <a class="btn btn-outline btn-lg" href="#verify" style="background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.45);color:#fff;">
+            <Icon name="badge-check" /> <span data-i18n="emp.verifyLicense">Verify Business Licence</span>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -144,6 +169,133 @@ const postJsonLd = [
           charge candidates.
         </p>
       </div>
+    </div>
+  </section>
+
+  <!-- ===== Business licence verification ===== -->
+  <section class="container section--tight" id="verify">
+    <div class="form-card" style="max-width:none;">
+      <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;justify-content:space-between;">
+        <div style="flex:1;min-width:260px;">
+          <span class="kicker kicker--cta">Trust</span>
+          <h2 style="font-size:1.35rem;margin:6px 0 8px;">Get your Verified Employer badge</h2>
+          <p class="muted" style="margin-top:0;">
+            Upload or reference your trade licence / GST certificate and our team checks
+            it within one business day. Verified listings get up to <b>3× more
+            applications</b> — candidates trust the emerald badge instantly.
+          </p>
+          <ul style="list-style:none;padding:0;margin:0;display:grid;gap:8px;">
+            <li style="display:flex;gap:8px;align-items:center;font-size:0.92rem;">
+              <Icon name="check" /> Licence checked by a human, not a bot
+            </li>
+            <li style="display:flex;gap:8px;align-items:center;font-size:0.92rem;">
+              <Icon name="check" /> Emerald “Verified Employer” badge on every card
+            </li>
+            <li style="display:flex;gap:8px;align-items:center;font-size:0.92rem;">
+              <Icon name="check" /> Priority placement in search results
+            </li>
+          </ul>
+        </div>
+        <form id="verify-form" style="flex:0 1 340px;display:grid;gap:11px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;">
+          <label class="field" style="margin-top:0;">
+            <span>Company name</span>
+            <input class="input" name="company" required placeholder="Acme Technologies" />
+          </label>
+          <label class="field" style="margin-top:0;">
+            <span>Licence / GST number</span>
+            <input class="input" name="license" required placeholder="27AAECA1234F1Z5" />
+          </label>
+          <label class="field" style="margin-top:0;">
+            <span>Work email</span>
+            <input class="input" name="email" type="email" required placeholder="you@company.com" />
+          </label>
+          <button class="btn btn-primary" type="submit" style="min-height:46px;">
+            <Icon name="shield" /> Submit for verification
+          </button>
+          <p class="hint" data-verify-hint style="margin:0;">Free · reviewed within one business day.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Filter subscribed candidates ===== -->
+  <section class="container section--tight" id="candidates">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Talent pool</span>
+        <h2>Filter subscribed candidates</h2>
+        <p class="lead">
+          Subscribers opt in to be discoverable. Search by skill, country and
+          experience — then reach out on WhatsApp directly.
+        </p>
+      </div>
+    </div>
+
+    <div class="form-card" style="max-width:none;">
+      <div class="form-grid" style="margin-bottom:14px;">
+        <div class="field" style="margin-top:0;">
+          <label for="c-skill">Skill / keyword</label>
+          <input class="input" type="search" id="c-skill" placeholder="e.g. React, welding, nurse" autocomplete="off" />
+        </div>
+        <div class="field" style="margin-top:0;">
+          <label for="c-country">Preferred country</label>
+          <select class="select" id="c-country">
+            <option value="">Any country</option>
+            <option value="india">India</option>
+            <option value="uae">Dubai / UAE</option>
+            <option value="saudi">Saudi Arabia</option>
+            <option value="qatar">Qatar</option>
+            <option value="uzbekistan">Uzbekistan</option>
+          </select>
+        </div>
+        <div class="field" style="margin-top:0;">
+          <label for="c-exp">Minimum experience</label>
+          <select class="select" id="c-exp">
+            <option value="0">Any experience</option>
+            <option value="2">2+ years</option>
+            <option value="5">5+ years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tracker" data-candidate-list>
+        {
+          candidates.map((c) => (
+            <div
+              class="tracker-row"
+              data-candidate
+              data-skills={c.skills.join(' ').toLowerCase()}
+              data-country={c.country}
+              data-exp={c.exp}
+            >
+              <div class="tracker-row__main">
+                <b>{c.name}</b>
+                <span>
+                  {candidateCountries[c.country]} · {c.exp} yrs ·{' '}
+                  {c.passport ? 'Passport ready' : 'Passport in process'}
+                </span>
+                <div class="job-card__skills" style="margin-top:7px;">
+                  {c.skills.map((skill) => (
+                    <span class="chip">{skill}</span>
+                  ))}
+                </div>
+              </div>
+              <span class="stage stage--selected">Subscribed</span>
+              <a
+                class="btn btn-primary btn-sm"
+                href={`https://wa.me/?text=${encodeURIComponent(`Hi ${c.name}, I saw your profile on Jobsji and have a role that matches your skills.`)}`}
+                target="_blank"
+                rel="noopener"
+              >
+                <Icon name="phone" /> WhatsApp
+              </a>
+            </div>
+          ))
+        }
+      </div>
+      <p class="muted" data-candidate-empty hidden style="text-align:center;padding:24px 0;">
+        No candidates match those filters — try widening the skill or country.
+      </p>
     </div>
   </section>
 
@@ -316,4 +468,45 @@ const postJsonLd = [
     const href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = href;
   });
+
+  /* ---------- Licence verification (simulated) ---------- */
+  const verifyForm = document.querySelector<HTMLFormElement>('#verify-form');
+  verifyForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!verifyForm.reportValidity()) return;
+    const hint = verifyForm.querySelector<HTMLElement>('[data-verify-hint]');
+    if (hint) {
+      hint.textContent = 'Submitted ✅ Our team will email you within one business day.';
+      hint.style.color = 'var(--green-700)';
+      hint.style.fontWeight = '650';
+    }
+    verifyForm.reset();
+  });
+
+  /* ---------- Candidate filtering ---------- */
+  const skillInput = document.querySelector<HTMLInputElement>('#c-skill');
+  const countrySelect = document.querySelector<HTMLSelectElement>('#c-country');
+  const expSelect = document.querySelector<HTMLSelectElement>('#c-exp');
+  const candidateRows = Array.from(document.querySelectorAll<HTMLElement>('[data-candidate]'));
+  const candidateEmpty = document.querySelector<HTMLElement>('[data-candidate-empty]');
+
+  const filterCandidates = () => {
+    const skill = (skillInput?.value ?? '').trim().toLowerCase();
+    const country = countrySelect?.value ?? '';
+    const minExp = Number(expSelect?.value ?? 0);
+    let visible = 0;
+    candidateRows.forEach((row) => {
+      const matchSkill = !skill || (row.dataset.skills ?? '').includes(skill);
+      const matchCountry = !country || row.dataset.country === country;
+      const matchExp = Number(row.dataset.exp ?? 0) >= minExp;
+      const show = matchSkill && matchCountry && matchExp;
+      row.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (candidateEmpty) candidateEmpty.hidden = visible > 0;
+  };
+
+  skillInput?.addEventListener('input', filterCandidates);
+  countrySelect?.addEventListener('change', filterCandidates);
+  expSelect?.addEventListener('change', filterCandidates);
 </script>

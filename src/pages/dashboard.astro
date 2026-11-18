@@ -1,0 +1,550 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { activeJobs } from '../lib/jobs';
+import { breadcrumbJsonLd } from '../lib/seo';
+
+const allJobs = activeJobs();
+
+/* Sample application tracker rows (realistic demo state). */
+const applications = [
+  { slug: 'civil-engineer-dubai', title: 'Civil Engineer', company: 'GulfCrest Contracting', stage: 'interview', date: '2026-11-16' },
+  { slug: 'software-developer-bengaluru', title: 'Software Developer', company: 'RetailLoop Commerce', stage: 'viewed', date: '2026-11-15' },
+  { slug: 'heavy-truck-driver-riyadh', title: 'Heavy Truck Driver', company: 'TransAsia Logistics', stage: 'applied', date: '2026-11-14' },
+  { slug: 'staff-nurse-pune', title: 'Staff Nurse', company: 'HealthPlus Clinics', stage: 'selected', date: '2026-11-10' },
+];
+
+const stageLabels: Record<string, string> = {
+  applied: 'Applied',
+  viewed: 'Viewed by HR',
+  interview: 'Interview Scheduled',
+  selected: 'Selected',
+};
+
+/* Saved jobs — read live from localStorage on the client; SSR shows a starter set. */
+const savedSlugs = ['civil-engineer-dubai', 'executive-chef-dubai', 'frontend-developer-warsaw'];
+const savedJobs = allJobs.filter((job) => savedSlugs.includes(job.slug));
+
+const jsonLd = breadcrumbJsonLd([
+  { name: 'Home', path: '/' },
+  { name: 'My Dashboard', path: '/dashboard' },
+]);
+---
+
+<BaseLayout
+  title="My Dashboard — Profile, Resume & Applications"
+  description="Build your profile, download a clean resume PDF, track every application stage and set WhatsApp job alerts — all in one place on Jobsji."
+  path="/dashboard"
+  jsonLd={jsonLd}
+  noindex
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'My Dashboard' }]} />
+      <h1 data-i18n="dash.title">My Dashboard</h1>
+      <p class="lead">
+        Complete your profile once — then apply faster, track every stage and get
+        alerts for jobs that match you.
+      </p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="dash-layout">
+      <!-- Side nav -->
+      <nav class="dash-nav" role="tablist" aria-label="Dashboard sections">
+        <button type="button" role="tab" data-tab="overview" aria-selected="true">
+          <Icon name="chart" /> <span data-i18n="dash.overview">Overview</span>
+        </button>
+        <button type="button" role="tab" data-tab="profile" aria-selected="false">
+          <Icon name="user" /> <span data-i18n="dash.profile">Profile</span>
+        </button>
+        <button type="button" role="tab" data-tab="resume" aria-selected="false">
+          <Icon name="book" /> <span data-i18n="dash.resume">Resume</span>
+        </button>
+        <button type="button" role="tab" data-tab="applications" aria-selected="false">
+          <Icon name="briefcase" /> <span data-i18n="dash.applications">Applications</span>
+        </button>
+        <button type="button" role="tab" data-tab="saved" aria-selected="false">
+          <Icon name="bookmark" /> <span data-i18n="dash.saved">Saved Jobs</span>
+        </button>
+        <button type="button" role="tab" data-tab="alerts" aria-selected="false">
+          <Icon name="megaphone" /> <span data-i18n="dash.alerts">Alerts</span>
+        </button>
+      </nav>
+
+      <div>
+        <!-- ===== Overview ===== -->
+        <section class="dash-panel" data-panel="overview" role="tabpanel">
+          <div class="dash-cards">
+            <div class="dash-stat"><b data-stat-profile>40%</b><span>Profile complete</span></div>
+            <div class="dash-stat is-accent"><b data-stat-apps>{applications.length}</b><span>Applications sent</span></div>
+            <div class="dash-stat is-trust"><b>1</b><span>Interview scheduled</span></div>
+            <div class="dash-stat"><b data-stat-saved>{savedJobs.length}</b><span>Saved jobs</span></div>
+          </div>
+
+          <div class="form-card" style="max-width:none;">
+            <div class="switch-row" style="margin-bottom:14px;">
+              <div class="switch-row__text">
+                <b>Your plan</b>
+                <span data-plan-status>Free explorer — subscribe to unlock direct HR contacts.</span>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" data-upgrade>
+                <span data-i18n="plan.subscribe">Subscribe Now</span>
+              </button>
+            </div>
+
+            <div class="tracker">
+              <h3 style="font-size:1rem;margin:6px 0 2px;">Recent activity</h3>
+              {
+                applications.slice(0, 3).map((app) => (
+                  <div class="tracker-row">
+                    <div class="tracker-row__main">
+                      <b>{app.title}</b>
+                      <span>{app.company}</span>
+                    </div>
+                    <span class={`stage stage--${app.stage}`}>{stageLabels[app.stage]}</span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Profile ===== -->
+        <section class="dash-panel" data-panel="profile" role="tabpanel" hidden>
+          <div class="form-card" style="max-width:none;">
+            <h2 style="font-size:1.2rem;">Build your profile</h2>
+            <p class="muted" style="margin-top:0;">
+              Employers see this when you apply. The more complete it is, the higher
+              you rank in their filters.
+            </p>
+
+            <form id="profile-form" class="form-grid">
+              <label class="field">
+                <span>Full name</span>
+                <input class="input" type="text" name="name" placeholder="e.g. Ravi Kumar" autocomplete="name" />
+              </label>
+              <label class="field">
+                <span>Phone / WhatsApp</span>
+                <input class="input" type="tel" name="phone" placeholder="+91 98765 43210" autocomplete="tel" />
+              </label>
+              <label class="field" style="grid-column:1/-1;">
+                <span>Skills</span>
+                <input class="input" type="text" name="skills" placeholder="e.g. React, AutoCAD, Welding, Nursing" />
+              </label>
+              <label class="field">
+                <span>Experience (years)</span>
+                <input class="input" type="number" name="experience" min="0" max="50" placeholder="3" />
+              </label>
+              <label class="field">
+                <span>Passport</span>
+                <select class="select" name="passport">
+                  <option value="yes">Yes — I have a passport</option>
+                  <option value="no">No — I need help applying</option>
+                </select>
+              </label>
+              <label class="field" style="grid-column:1/-1;">
+                <span>Preferred country</span>
+                <select class="select" name="country">
+                  <option value="india">India</option>
+                  <option value="uae">Dubai / UAE</option>
+                  <option value="uzbekistan">Uzbekistan</option>
+                  <option value="saudi">Saudi Arabia</option>
+                  <option value="qatar">Qatar</option>
+                  <option value="europe">Europe</option>
+                  <option value="russia">Russia</option>
+                </select>
+              </label>
+            </form>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="button" data-save-profile>
+                <Icon name="check" /> <span data-i18n="dash.saveProfile">Save Profile</span>
+              </button>
+              <span class="muted" style="font-size:0.85rem;">Saved on this device — free forever.</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Resume ===== -->
+        <section class="dash-panel" data-panel="resume" role="tabpanel" hidden>
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+            <div>
+              <h2 style="font-size:1.2rem;margin:0;">Your resume</h2>
+              <p class="muted" style="margin:2px 0 0;">Generated from your profile — clean, ATS-friendly, one page.</p>
+            </div>
+            <button class="btn btn-primary" type="button" data-download-resume>
+              <Icon name="book" /> <span data-i18n="dash.downloadResume">Download Resume (PDF)</span>
+            </button>
+          </div>
+
+          <div class="resume-sheet" id="resume-preview">
+            <p class="resume-sheet__name" data-r-name>Your Name</p>
+            <p class="resume-sheet__role" data-r-role>Job Seeker</p>
+            <p class="resume-sheet__contact" data-r-contact>+91 ••••• ••••• · your@email.com · India</p>
+
+            <h4>Skills</h4>
+            <div class="resume-sheet__chips" data-r-skills>
+              <span class="chip">Add skills in your profile</span>
+            </div>
+
+            <h4>Experience</h4>
+            <ul data-r-experience>
+              <li>Add your experience in the Profile tab — it appears here instantly.</li>
+            </ul>
+
+            <h4>Preferences</h4>
+            <ul data-r-prefs>
+              <li>Preferred country: India · Passport: Not specified</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ===== Applications ===== -->
+        <section class="dash-panel" data-panel="applications" role="tabpanel" hidden>
+          <h2 style="font-size:1.2rem;">Application tracker</h2>
+          <p class="muted" style="margin-top:0;">Four stages, always visible — no more “did they see it?”</p>
+
+          <div class="tabs" role="tablist" aria-label="Filter applications">
+            <button class="tab" type="button" data-app-filter="all" aria-selected="true">All</button>
+            <button class="tab" type="button" data-app-filter="applied" aria-selected="false">Applied</button>
+            <button class="tab" type="button" data-app-filter="viewed" aria-selected="false">Viewed by HR</button>
+            <button class="tab" type="button" data-app-filter="interview" aria-selected="false">Interview</button>
+            <button class="tab" type="button" data-app-filter="selected" aria-selected="false">Selected</button>
+          </div>
+
+          <div class="tracker" data-app-list>
+            {
+              applications.map((app) => (
+                <div class="tracker-row" data-app-stage={app.stage}>
+                  <div class="tracker-row__main">
+                    <b>{app.title}</b>
+                    <span>
+                      {app.company} · Applied {app.date}
+                    </span>
+                  </div>
+                  <span class={`stage stage--${app.stage}`}>{stageLabels[app.stage]}</span>
+                  <a class="btn btn-outline btn-sm" href={`/jobs/${app.slug}`}>
+                    View job
+                  </a>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <!-- ===== Saved ===== -->
+        <section class="dash-panel" data-panel="saved" role="tabpanel" hidden>
+          <h2 style="font-size:1.2rem;">Saved jobs</h2>
+          <p class="muted" style="margin-top:0;">Tap the bookmark on any job to keep it here.</p>
+          <div class="tracker" data-saved-list>
+            {
+              savedJobs.map((job) => (
+                <div class="tracker-row" data-saved-row={job.slug}>
+                  <div class="tracker-row__main">
+                    <b>{job.title}</b>
+                    <span>
+                      {job.flag ?? '🇮🇳'} {job.city} · {job.localSalary ?? ''}
+                      {job.localSalary ? '' : 'Salary on card'}
+                    </span>
+                  </div>
+                  <a class="btn btn-outline btn-sm" href={`/jobs/${job.slug}`}>Open</a>
+                  <button class="btn btn-ghost btn-sm" type="button" data-unsave={job.slug} aria-label="Remove from saved jobs">
+                    <Icon name="x" />
+                  </button>
+                </div>
+              ))
+            }
+          </div>
+          <p class="muted" data-saved-empty hidden style="text-align:center;padding:26px 0;">
+            Nothing saved yet — browse jobs and hit save. Your shortlist lives here.
+          </p>
+        </section>
+
+        <!-- ===== Alerts ===== -->
+        <section class="dash-panel" data-panel="alerts" role="tabpanel" hidden>
+          <h2 style="font-size:1.2rem;">Alerts</h2>
+          <p class="muted" style="margin-top:0;">Choose how you want new matching jobs to reach you.</p>
+
+          <div style="display:grid;gap:12px;">
+            <div class="switch-row">
+              <div class="switch-row__text">
+                <b>WhatsApp alerts</b>
+                <span>Get a message the moment a matching job is verified and live.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" data-alert="whatsapp" checked />
+                <span class="switch__track"></span>
+              </label>
+            </div>
+            <div class="switch-row">
+              <div class="switch-row__text">
+                <b>Email alerts</b>
+                <span>A daily digest of new roles in your skills and countries.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" data-alert="email" />
+                <span class="switch__track"></span>
+              </label>
+            </div>
+            <div class="switch-row">
+              <div class="switch-row__text">
+                <b>International jobs only</b>
+                <span>Visa-sponsored roles in Dubai, Uzbekistan, Saudi, Qatar & Europe.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" data-alert="international" />
+                <span class="switch__track"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="button" data-save-alerts>
+              <Icon name="check" /> Save alert settings
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    import { toast } from '../lib/toast';
+    import { activePlanId } from '../lib/checkout';
+    import { planById } from '../data/plans';
+
+    const LS = {
+      profile: 'jobsji-profile',
+      alerts: 'jobsji-alerts',
+      saved: 'jobsji-saved',
+    };
+
+    const read = <T,>(key: string, fallback: T): T => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : fallback;
+      } catch {
+        return fallback;
+      }
+    };
+    const write = (key: string, value: unknown) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        /* ignore */
+      }
+    };
+
+    /* ---------- Tabs ---------- */
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-panel]'));
+
+    const showTab = (name: string) => {
+      tabs.forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.tab === name)));
+      panels.forEach((panel) => (panel.hidden = panel.dataset.panel !== name));
+      const url = new URL(window.location.href);
+      if (name === 'overview') url.searchParams.delete('tab');
+      else url.searchParams.set('tab', name);
+      window.history.replaceState(null, '', url.toString());
+    };
+
+    tabs.forEach((tab) => tab.addEventListener('click', () => showTab(tab.dataset.tab ?? 'overview')));
+
+    const initialTab = new URLSearchParams(window.location.search).get('tab');
+    if (initialTab && panels.some((panel) => panel.dataset.panel === initialTab)) showTab(initialTab);
+
+    /* ---------- Profile ---------- */
+    const profileForm = document.getElementById('profile-form') as HTMLFormElement | null;
+    const profile = read<Record<string, string>>(LS.profile, {});
+
+    const hydrateProfile = () => {
+      if (!profileForm) return;
+      for (const [key, value] of Object.entries(profile)) {
+        const field = profileForm.elements.namedItem(key) as HTMLInputElement | HTMLSelectElement | null;
+        if (field) field.value = value;
+      }
+      renderResume(profile);
+      updateProfileStat(profile);
+    };
+
+    const updateProfileStat = (data: Record<string, string>) => {
+      const fields = ['name', 'phone', 'skills', 'experience', 'passport', 'country'];
+      const filled = fields.filter((f) => String(data[f] ?? '').trim()).length;
+      const pct = Math.round((filled / fields.length) * 100);
+      const stat = document.querySelector<HTMLElement>('[data-stat-profile]');
+      if (stat) stat.textContent = `${pct}%`;
+    };
+
+    const renderResume = (data: Record<string, string>) => {
+      const set = (sel: string, text: string) => {
+        const el = document.querySelector<HTMLElement>(sel);
+        if (el) el.textContent = text;
+      };
+      set('[data-r-name]', data.name?.trim() || 'Your Name');
+      set('[data-r-role]', data.skills?.split(',')[0]?.trim() || 'Job Seeker');
+      set(
+        '[data-r-contact]',
+        [data.phone?.trim() || '+91 ••••• •••••', 'India'].join(' · '),
+      );
+
+      const skillsWrap = document.querySelector<HTMLElement>('[data-r-skills]');
+      if (skillsWrap) {
+        const skills = (data.skills ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+        skillsWrap.innerHTML = skills.length
+          ? skills.map((s) => `<span class="chip">${s}</span>`).join('')
+          : '<span class="chip">Add skills in your profile</span>';
+      }
+
+      const expWrap = document.querySelector<HTMLElement>('[data-r-experience]');
+      if (expWrap) {
+        const years = data.experience?.trim();
+        expWrap.innerHTML = years
+          ? `<li>${Number(years) > 0 ? `${years} years of professional experience` : 'Fresher — open to entry-level roles'} across applied skills.</li>`
+          : '<li>Add your experience in the Profile tab — it appears here instantly.</li>';
+      }
+
+      const prefs = document.querySelector<HTMLElement>('[data-r-prefs]');
+      if (prefs) {
+        const countries: Record<string, string> = {
+          india: 'India',
+          uae: 'Dubai / UAE',
+          uzbekistan: 'Uzbekistan',
+          saudi: 'Saudi Arabia',
+          qatar: 'Qatar',
+          europe: 'Europe',
+          russia: 'Russia',
+        };
+        prefs.innerHTML = `<li>Preferred country: ${countries[data.country ?? 'india'] ?? 'India'} · Passport: ${
+          data.passport === 'yes' ? 'Yes' : data.passport === 'no' ? 'No' : 'Not specified'
+        }</li>`;
+      }
+    };
+
+    profileForm?.addEventListener('input', () => {
+      const data = Object.fromEntries(new FormData(profileForm).entries()) as Record<string, string>;
+      write(LS.profile, data);
+      renderResume(data);
+      updateProfileStat(data);
+    });
+
+    document.querySelector('[data-save-profile]')?.addEventListener('click', () => {
+      if (!profileForm) return;
+      const data = Object.fromEntries(new FormData(profileForm).entries()) as Record<string, string>;
+      write(LS.profile, data);
+      renderResume(data);
+      updateProfileStat(data);
+      toast('Profile saved — looking good! 🎉', 'success');
+    });
+
+    hydrateProfile();
+
+    /* ---------- Resume download (print-to-PDF) ---------- */
+    document.querySelector('[data-download-resume]')?.addEventListener('click', () => {
+      const name = (profile.name ?? '').trim() || 'Jobsji-Resume';
+      const printWindow = window.open('', '_blank', 'width=800,height=1000');
+      const sheet = document.getElementById('resume-preview');
+      if (!printWindow || !sheet) {
+        toast('Please allow pop-ups to download your resume.', 'error');
+        return;
+      }
+      printWindow.document.write(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${name} — Resume</title>
+<style>
+  body{font-family:Inter,system-ui,sans-serif;color:#0f2942;margin:40px;line-height:1.55;}
+  h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#0f2942;
+     margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid #e2e8f0;}
+  .resume-sheet__name{font-size:26px;font-weight:800;margin:0 0 2px;letter-spacing:-.02em;}
+  .resume-sheet__role{color:#0f2942;font-weight:600;margin:0 0 4px;}
+  .resume-sheet__contact{font-size:12px;color:#64748b;margin:0 0 14px;
+     padding-bottom:12px;border-bottom:2px solid #0f2942;}
+  .resume-sheet__chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{border:1px solid #e2e8f0;border-radius:999px;padding:3px 10px;font-size:12px;}
+  ul{margin:0;padding-left:18px;font-size:13px;color:#334155;}
+  li{margin-bottom:4px;}
+</style></head><body>${sheet.innerHTML}</body></html>`);
+      printWindow.document.close();
+      printWindow.focus();
+      window.setTimeout(() => {
+        printWindow.print();
+        toast('Choose “Save as PDF” in the print dialog 📄', 'success');
+      }, 350);
+    });
+
+    /* ---------- Applications filter ---------- */
+    const appFilterBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-app-filter]'));
+    const appRows = Array.from(document.querySelectorAll<HTMLElement>('[data-app-stage]'));
+    appFilterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const filter = btn.dataset.appFilter ?? 'all';
+        appFilterBtns.forEach((b) => b.setAttribute('aria-selected', String(b === btn)));
+        appRows.forEach((row) => {
+          row.hidden = filter !== 'all' && row.dataset.appStage !== filter;
+        });
+      });
+    });
+
+    /* ---------- Saved jobs ---------- */
+    const savedRows = Array.from(document.querySelectorAll<HTMLElement>('[data-saved-row]'));
+    const savedEmpty = document.querySelector<HTMLElement>('[data-saved-empty]');
+    const refreshSaved = () => {
+      const visible = savedRows.filter((row) => !row.hidden);
+      if (savedEmpty) savedEmpty.hidden = visible.length > 0;
+      const stat = document.querySelector<HTMLElement>('[data-stat-saved]');
+      if (stat) stat.textContent = String(visible.length);
+    };
+    savedRows.forEach((row) => {
+      row.querySelector<HTMLButtonElement>('[data-unsave]')?.addEventListener('click', () => {
+        row.hidden = true;
+        refreshSaved();
+        toast('Removed from saved jobs', 'info');
+      });
+    });
+    document.querySelectorAll<HTMLElement>('[data-saved-row]').forEach((row) => {
+      const key = LS.saved;
+      const current = read<string[]>(key, []);
+      const slug = row.dataset.savedRow ?? '';
+      if (!current.includes(slug)) row.hidden = true;
+    });
+    refreshSaved();
+
+    /* ---------- Alerts ---------- */
+    const alerts = read<Record<string, boolean>>(LS.alerts, { whatsapp: true, email: false, international: false });
+    document.querySelectorAll<HTMLInputElement>('[data-alert]').forEach((input) => {
+      const key = input.dataset.alert ?? '';
+      input.checked = Boolean(alerts[key]);
+      input.addEventListener('change', () => {
+        const next = { ...read<Record<string, boolean>>(LS.alerts, {}) };
+        next[key] = input.checked;
+        write(LS.alerts, next);
+      });
+    });
+    document.querySelector('[data-save-alerts]')?.addEventListener('click', () => {
+      const next: Record<string, boolean> = {};
+      document.querySelectorAll<HTMLInputElement>('[data-alert]').forEach((input) => {
+        next[input.dataset.alert ?? ''] = input.checked;
+      });
+      write(LS.alerts, next);
+      toast('Alert settings saved — we’ll keep you posted! 🔔', 'success');
+    });
+
+    /* ---------- Plan status + upgrade ---------- */
+    const renderPlan = () => {
+      const planId = activePlanId();
+      const status = document.querySelector<HTMLElement>('[data-plan-status]');
+      const plan = planId ? planById.get(planId as 'basic' | 'global-pro' | 'career-vip') : null;
+      if (status) {
+        status.textContent = plan
+          ? `${plan.name} active — direct HR contacts unlocked.`
+          : 'Free explorer — subscribe to unlock direct HR contacts.';
+      }
+    };
+    renderPlan();
+    document.addEventListener('jobsji:subscribed', renderPlan);
+    document.querySelector('[data-upgrade]')?.addEventListener('click', () => {
+      document.dispatchEvent(new CustomEvent('jobsji:checkout', { detail: { planId: 'global-pro' } }));
+    });
+  </script>
+</BaseLayout>
