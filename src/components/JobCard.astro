@@ -11,9 +11,11 @@ interface Props {
   job: Job;
   /** When true, clicking the title opens the detail slide-over instead of navigating. */
   slideover?: boolean;
+  /** Show the locked/unlocked direct HR contact block. */
+  showHr?: boolean;
 }
 
-const { job, slideover = false } = Astro.props;
+const { job, slideover = false, showHr = true } = Astro.props;
 const company = companyBySlug.get(job.companySlug);
 const category = categoryBySlug.get(job.categorySlug);
 
@@ -32,7 +34,7 @@ const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod);
 const experience = formatExperience(job.experienceMin, job.experienceMax);
 const posted = timeAgo(job.postedAt);
 const isIndia = (job.country ?? 'india') === 'india';
-const hasHr = Boolean(job.hrWhatsApp || job.hrPhone);
+const hasHr = showHr && Boolean(job.hrWhatsApp || job.hrPhone);
 ---
 
 <article

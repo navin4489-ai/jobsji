@@ -99,8 +99,6 @@ const details = allJobs.map((job) => {
     skills: job.skills,
     openings: job.openings,
     posted: timeAgo(job.postedAt),
-    hrWhatsApp: job.hrWhatsApp ?? '',
-    hrPhone: job.hrPhone ?? '',
     applyUrl: job.applyUrl ?? '',
     applyEmail: job.applyEmail ?? '',
     href: `/jobs/${job.slug}`,
@@ -355,7 +353,7 @@ const jsonLd = [
         </noscript>
 
         <div class="jobs-list" data-jobs-list>
-          {allJobs.map((job) => <JobCard job={job} slideover />)}
+          {allJobs.map((job) => <JobCard job={job} slideover showHr={false} />)}
         </div>
 
         <div data-empty-wrap hidden>
@@ -787,8 +785,6 @@ const jsonLd = [
     skills: string[];
     openings: number;
     posted: string;
-    hrWhatsApp: string;
-    hrPhone: string;
     applyUrl: string;
     applyEmail: string;
     href: string;
@@ -852,33 +848,6 @@ const jsonLd = [
          </div>`
       : `<p style="font-weight:750;font-size:1.05rem;margin:0 0 6px;">${esc(job.salary)}</p>`;
 
-    const contactUnlocked =
-      typeof window !== 'undefined' &&
-      (() => {
-        try {
-          return localStorage.getItem('jobsji-plan') !== null;
-        } catch {
-          return false;
-        }
-      })();
-
-    const hrHtml =
-      job.hrWhatsApp || job.hrPhone
-        ? `<div class="hr-contact" data-hr-contact ${contactUnlocked ? '' : 'hidden'} style="margin-top:12px;">
-             <span class="hr-contact__label">Direct HR contact</span>
-             ${
-               job.hrWhatsApp
-                 ? `<a class="hr-contact__row" href="https://wa.me/${esc(job.hrWhatsApp.replace(/[^0-9]/g, ''))}?text=${encodeURIComponent(`Hi, I applied for ${job.title} on Jobsji.`)}" target="_blank" rel="noopener">📱 WhatsApp ${esc(job.hrWhatsApp)}</a>`
-                 : ''
-             }
-             ${
-               job.hrPhone
-                 ? `<a class="hr-contact__row" href="tel:${esc(job.hrPhone.replace(/\s/g, ''))}">☎ Call ${esc(job.hrPhone)}</a>`
-                 : ''
-             }
-           </div>`
-        : '';
-
     const applyHref = job.applyUrl || (job.applyEmail ? `mailto:${job.applyEmail}` : job.href);
 
     return `
@@ -917,30 +886,13 @@ const jsonLd = [
         ${job.skills.map((skill) => `<span class="chip">${esc(skill)}</span>`).join('')}
       </div>
 
-      <div class="apply-lock" style="margin-top:18px;" data-apply-lock>
-        ${
-          job.hrWhatsApp || job.hrPhone
-            ? `<p class="apply-lock__hint" data-lock-hint ${contactUnlocked ? 'hidden' : ''}>
-                 🔒 Subscribe to unlock direct HR contact, WhatsApp number and Apply Instantly.
-               </p>`
-            : ''
-        }
-        ${hrHtml}
-        <div style="display:grid;gap:10px;">
-          <a class="btn btn-primary" href="${esc(applyHref)}" ${job.applyUrl ? 'target="_blank" rel="noopener"' : ''} style="justify-content:center;min-height:50px;">
-            ⚡ Apply Now
-          </a>
-          ${
-            job.hrWhatsApp && !contactUnlocked
-              ? `<button class="btn btn-outline" type="button" data-unlock-btn style="justify-content:center;min-height:50px;">
-                   🔒 Unlock Direct HR WhatsApp
-                 </button>`
-              : ''
-          }
-          <a class="btn btn-ghost" href="${esc(job.href)}" style="justify-content:center;">
-            Open full page →
-          </a>
-        </div>
+      <div style="display:grid;gap:10px;margin-top:18px;">
+        <a class="btn btn-primary" href="${esc(applyHref)}" ${job.applyUrl ? 'target="_blank" rel="noopener"' : ''} style="justify-content:center;min-height:50px;">
+          ⚡ Apply Now
+        </a>
+        <a class="btn btn-ghost" href="${esc(job.href)}" style="justify-content:center;">
+          Open full page →
+        </a>
       </div>
     `;
   };
