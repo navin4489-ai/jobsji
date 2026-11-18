@@ -7,7 +7,7 @@
  *
  * Secrets / vars (see worker/README.md):
  *   GEMINI_API_KEY   (secret)  — from https://aistudio.google.com/apikey
- *   GEMINI_MODEL     (var)     — default "gemini-2.5-flash"
+ *   GEMINI_MODELS    (var)     — comma list tried in order (see wrangler.toml)
  *   ALLOWED_ORIGINS  (var)     — comma list, default "https://jobsji.in"
  */
 
@@ -110,27 +110,41 @@ export default {
 
     contents.push({ role: 'user', parts: [{ text: `[lang=${lang}]\n${message}` }] });
 
-    const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    const models = (env.GEMINI_MODELS || 'gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.8-flash')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const requestBody = JSON.stringify({
+      systemInstruction: { parts: [{ text: `${SITE_FACTS}\n\nJOB LIST (slug | title | city | country | salary):\n${jobList}` }] },
+      contents,
+      generationConfig: { temperature: 0.5, maxOutputTokens: 600 },
+    });
 
+    // Try each model in turn — busy (503), retired (404) or quota-limited (429)
+    // models are skipped so one overloaded model never breaks the bot.
     let res;
-    try {
-      res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: `${SITE_FACTS}\n\nJOB LIST (slug | title | city | country | salary):\n${jobList}` }] },
-          contents,
-          generationConfig: { temperature: 0.5, maxOutputTokens: 400 },
-        }),
-      });
-    } catch {
-      return json({ error: 'upstream' }, 502, cors);
+    let lastStatus = 0;
+    for (const model of models) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+      try {
+        res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
+          body: requestBody,
+        });
+      } catch {
+        res = undefined;
+        continue;
+      }
+      if (res.ok) break;
+      lastStatus = res.status;
+      if (![404, 429, 500, 503].includes(res.status)) break;
+      res = undefined;
     }
 
-    if (!res.ok) {
-      // 429 = free-tier limit reached; the site falls back to built-in answers.
-      return json({ error: res.status === 429 ? 'rate_limited' : 'upstream', status: res.status }, 502, cors);
+    if (!res || !res.ok) {
+      // The site falls back to its built-in answers on any error.
+      return json({ error: lastStatus === 429 ? 'rate_limited' : 'upstream', status: lastStatus }, 502, cors);
     }
 
     const data = await res.json().catch(() => null);
