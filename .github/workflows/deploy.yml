@@ -41,6 +41,8 @@ jobs:
           # BASE_PATH: /jobsji
           SITE_URL: https://jobsji.in
           BASE_PATH: /
+          # Gemini chat relay (Cloudflare Worker) — see worker/README.md
+          PUBLIC_CHAT_API: ${{ vars.PUBLIC_CHAT_API }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

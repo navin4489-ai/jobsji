@@ -24,9 +24,10 @@ const botJobs = activeJobs().map((job) => ({
 }));
 
 const whatsappDigits = SUPPORT_WHATSAPP.replace(/[^0-9]/g, '');
+const chatApi = import.meta.env.PUBLIC_CHAT_API ?? '';
 ---
 
-<div class="chatbot" data-chatbot data-whatsapp={whatsappDigits}>
+<div class="chatbot" data-chatbot data-whatsapp={whatsappDigits} data-chat-api={chatApi}>
   <section class="chatbot__panel" data-chat-panel hidden role="dialog" aria-label="JobsJi Assistant">
     <header class="chatbot__head">
       <Logo size={34} />
@@ -273,8 +274,8 @@ const whatsappDigits = SUPPORT_WHATSAPP.replace(/[^0-9]/g, '');
     /* ---------- Intent handling ---------- */
     const has = (q: string, words: string[]) => words.some((w) => q.includes(w));
 
-    const handle = (text: string, intent?: string) => {
-      addMsg('me', esc(text));
+    const handle = (text: string, intent?: string, echo = true) => {
+      if (echo) addMsg('me', esc(text));
       const q = text.toLowerCase();
 
       if (intent === 'q:abroad') {
@@ -318,6 +319,61 @@ const whatsappDigits = SUPPORT_WHATSAPP.replace(/[^0-9]/g, '');
       return botSay(t('fallback'), waLink());
     };
 
+    /* ---------- Gemini (via secure relay) ---------- */
+    const api = root.dataset.chatApi ?? '';
+    const history: { role: 'user' | 'model'; text: string }[] = [];
+    const jobBySlug = new Map(jobs.map((j) => [j.slug, j]));
+    const compactJobs = jobs.map(({ slug, title, city, country, salary, visa }) => ({ slug, title, city, country, salary, visa }));
+
+    const renderAi = (reply: string) => {
+      const slugs: string[] = [];
+      const text = reply
+        .replace(/\[\[([a-z0-9-]+)\]\]/g, (_, slug: string) => {
+          if (jobBySlug.has(slug) && !slugs.includes(slug)) slugs.push(slug);
+          return '';
+        })
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/[ \t]+\n/g, '\n')
+        .trim();
+      const cards = slugs.length
+        ? `<div class="chatbot__jobs">${slugs
+            .slice(0, 3)
+            .map((slug) => {
+              const j = jobBySlug.get(slug)!;
+              return `<a class="chatbot__job" href="/jobs/${esc(j.slug)}"><b>${esc(j.flag)} ${esc(j.title)}</b><span>${esc(j.city)}${j.salary ? ` · ${esc(j.salary)}` : ''}${j.visa ? ' · ✅ Visa' : ''}</span></a>`;
+            })
+            .join('')}</div>`
+        : '';
+      return esc(text).replace(/\n/g, '<br>') + cards;
+    };
+
+    const askAi = async (text: string) => {
+      addMsg('me', esc(text));
+      const bubble = addMsg('bot', '<span class="chatbot__typing"><i></i><i></i><i></i></span>');
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 15000);
+      try {
+        const res = await fetch(api, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, lang: lang(), history, jobs: compactJobs }),
+          signal: controller.signal,
+        });
+        const data = (await res.json()) as { reply?: string };
+        if (!res.ok || !data.reply) throw new Error('no reply');
+        bubble.innerHTML = renderAi(data.reply);
+        log.scrollTop = log.scrollHeight;
+        history.push({ role: 'user', text }, { role: 'model', text: data.reply });
+        if (history.length > 12) history.splice(0, history.length - 12);
+      } catch {
+        // Gemini unavailable or free limit reached — use built-in answers.
+        bubble.remove();
+        handle(text, undefined, false);
+      } finally {
+        window.clearTimeout(timer);
+      }
+    };
+
     /* ---------- Open / close ---------- */
     let greeted = false;
     const setOpen = (open: boolean) => {
@@ -348,7 +404,8 @@ const whatsappDigits = SUPPORT_WHATSAPP.replace(/[^0-9]/g, '');
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
-      handle(text);
+      if (api) void askAi(text);
+      else handle(text);
     });
 
     log.addEventListener('click', (e) => {
