@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" role="img" aria-label="JobsJi — Apka Career, Ab Global">
+  <rect width="64" height="64" rx="15" fill="#0F2942"/>
+  <circle cx="32" cy="34" r="20" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="2"/>
+  <ellipse cx="32" cy="34" rx="9" ry="20" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="2"/>
+  <path d="M12 34h40" stroke="#fff" stroke-opacity="0.18" stroke-width="2"/>
+  <path d="M38 16v20a9 9 0 0 1-18 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <path d="M10 22c10-10 26-14 40-8" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/>
+  <circle cx="51" cy="14" r="5" fill="#F59E0B"/>
+  <circle cx="51" cy="14" r="2" fill="#0F2942"/>
+  <text x="78" y="38" font-family="'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="-1" fill="#0F2942">Jobs<tspan fill="#F59E0B">Ji</tspan></text>
+  <text x="79" y="56" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.6" fill="#64748B">APKA CAREER, AB GLOBAL</text>
+</svg>

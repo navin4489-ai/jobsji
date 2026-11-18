@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import Logo from './Logo.astro';
 import { withBase } from '../lib/links';
 import { CONTACT_EMAIL, SITE_NAME, LAUNCH_YEAR } from '../config/site';
 
@@ -40,8 +41,8 @@ const columns = [
     <div class="footer-grid">
       <div class="footer-brand">
         <a class="brand" href={withBase('/')}>
-          <span class="brand__mark" aria-hidden="true">J</span>
-          <span>Jobsji<span class="brand__dot">.</span></span>
+          <Logo size={36} />
+          <span>Jobs<span class="brand__dot">Ji</span></span>
         </a>
         <p>
           {SITE_NAME} is an India-focused job discovery portal — search roles by

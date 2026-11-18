@@ -1,0 +1,27 @@
+---
+/** JobsJi mark: a "J" over a globe with a saffron flight path — local career, global reach. */
+interface Props {
+  size?: number;
+  class?: string;
+}
+
+const { size = 36, class: className } = Astro.props;
+---
+
+<svg
+  class:list={['logo-mark', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 64 64"
+  aria-hidden="true"
+  focusable="false"
+>
+  <rect width="64" height="64" rx="15" fill="#0F2942" />
+  <circle cx="32" cy="34" r="20" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="2" />
+  <ellipse cx="32" cy="34" rx="9" ry="20" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="2" />
+  <path d="M12 34h40" stroke="#fff" stroke-opacity="0.18" stroke-width="2" />
+  <path d="M38 16v20a9 9 0 0 1-18 0" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" />
+  <path d="M10 22c10-10 26-14 40-8" fill="none" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6" />
+  <circle cx="51" cy="14" r="5" fill="#F59E0B" />
+  <circle cx="51" cy="14" r="2" fill="#0F2942" />
+</svg>

@@ -1,0 +1,366 @@
+---
+/**
+ * JobsJi Assistant — rule-based help bot (no external service, no cost).
+ * Answers FAQs in EN / HI / UZ, suggests live jobs by country or skill,
+ * and hands off to WhatsApp support for anything else.
+ */
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { activeJobs } from '../lib/jobs';
+import { companyBySlug } from '../data/companies';
+import { SUPPORT_WHATSAPP } from '../config/site';
+
+const botJobs = activeJobs().map((job) => ({
+  slug: job.slug,
+  title: job.title,
+  city: job.city,
+  flag: job.flag ?? '🇮🇳',
+  country: job.country ?? 'india',
+  salary: job.localSalary ?? '',
+  visa: Boolean(job.visaSponsored),
+  text: [job.title, job.city, job.categorySlug, companyBySlug.get(job.companySlug)?.name ?? '', ...job.skills]
+    .join(' ')
+    .toLowerCase(),
+}));
+
+const whatsappDigits = SUPPORT_WHATSAPP.replace(/[^0-9]/g, '');
+---
+
+<div class="chatbot" data-chatbot data-whatsapp={whatsappDigits}>
+  <section class="chatbot__panel" data-chat-panel hidden role="dialog" aria-label="JobsJi Assistant">
+    <header class="chatbot__head">
+      <Logo size={34} />
+      <div style="flex:1;min-width:0;">
+        <b>JobsJi Assistant</b>
+        <span><i class="chatbot__dot"></i> <span data-chat-status>Online · replies instantly</span></span>
+      </div>
+      <button class="chatbot__x" type="button" data-chat-close aria-label="Close chat">
+        <Icon name="x" />
+      </button>
+    </header>
+
+    <div class="chatbot__log" data-chat-log aria-live="polite"></div>
+
+    <div class="chatbot__quick" data-chat-quick></div>
+
+    <form class="chatbot__form" data-chat-form>
+      <input
+        class="chatbot__input"
+        type="text"
+        name="msg"
+        autocomplete="off"
+        placeholder="Type your question…"
+        aria-label="Type your question"
+        data-chat-input
+      />
+      <button class="chatbot__send" type="submit" aria-label="Send">
+        <Icon name="send" />
+      </button>
+    </form>
+  </section>
+
+  <button class="chatbot__fab" type="button" data-chat-toggle aria-label="Open help chat" aria-expanded="false">
+    <span class="chatbot__fab-open"><Icon name="headset" size={26} /></span>
+    <span class="chatbot__fab-close" hidden><Icon name="x" size={24} /></span>
+    <span class="chatbot__badge" data-chat-badge>1</span>
+  </button>
+
+  <script type="application/json" data-chat-jobs set:html={JSON.stringify(botJobs).replace(/</g, '\\u003c')} />
+</div>
+
+<script>
+  type Lang = 'en' | 'hi' | 'uz';
+  type BotJob = {
+    slug: string;
+    title: string;
+    city: string;
+    flag: string;
+    country: string;
+    salary: string;
+    visa: boolean;
+    text: string;
+  };
+
+  const root = document.querySelector<HTMLElement>('[data-chatbot]');
+  if (root) {
+    const panel = root.querySelector<HTMLElement>('[data-chat-panel]')!;
+    const log = root.querySelector<HTMLElement>('[data-chat-log]')!;
+    const quick = root.querySelector<HTMLElement>('[data-chat-quick]')!;
+    const form = root.querySelector<HTMLFormElement>('[data-chat-form]')!;
+    const input = root.querySelector<HTMLInputElement>('[data-chat-input]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('[data-chat-toggle]')!;
+    const badge = root.querySelector<HTMLElement>('[data-chat-badge]');
+    const openIcon = root.querySelector<HTMLElement>('.chatbot__fab-open')!;
+    const closeIcon = root.querySelector<HTMLElement>('.chatbot__fab-close')!;
+    const whatsapp = root.dataset.whatsapp ?? '';
+
+    let jobs: BotJob[] = [];
+    try {
+      jobs = JSON.parse(root.querySelector('[data-chat-jobs]')?.textContent ?? '[]') as BotJob[];
+    } catch {
+      jobs = [];
+    }
+
+    const lang = (): Lang => {
+      const l = document.documentElement.lang;
+      return l === 'hi' || l === 'uz' ? l : 'en';
+    };
+
+    /* ---------- Copy (EN / HI / UZ) ---------- */
+    const T: Record<string, Record<Lang, string>> = {
+      hello: {
+        en: 'Namaste! 👋 I’m the JobsJi Assistant. I can help you find verified jobs in India and abroad, explain plans, visas and how to apply. What would you like to know?',
+        hi: 'नमस्ते! 👋 मैं JobsJi असिस्टेंट हूँ। मैं भारत और विदेश में सत्यापित नौकरियाँ खोजने, प्लान, वीज़ा और आवेदन के बारे में मदद कर सकता हूँ। आप क्या जानना चाहेंगे?',
+        uz: 'Assalomu alaykum! 👋 Men JobsJi yordamchisiman. Hindiston va xorijdagi tasdiqlangan ishlarni topish, tariflar, viza va ariza berish bo‘yicha yordam beraman. Nimani bilmoqchisiz?',
+      },
+      plans: {
+        en: 'We have 3 simple plans:\n• Basic Explorer — ₹199 / month\n• Global Pro — ₹499 / 3 months (most popular)\n• Career VIP — ₹999 / 6 months\nAll plans unlock direct HR contacts. No hidden agent fees, ever.',
+        hi: 'हमारे 3 आसान प्लान हैं:\n• Basic Explorer — ₹199 / माह\n• Global Pro — ₹499 / 3 माह (सबसे लोकप्रिय)\n• Career VIP — ₹999 / 6 माह\nहर प्लान में सीधा HR संपर्क। कोई छिपी एजेंट फीस नहीं।',
+        uz: 'Bizda 3 ta oddiy tarif bor:\n• Basic Explorer — ₹199 / oy\n• Global Pro — ₹499 / 3 oy (eng mashhur)\n• Career VIP — ₹999 / 6 oy\nBarcha tariflar HR kontaktlarini ochadi. Yashirin agent to‘lovlari yo‘q.',
+      },
+      visa: {
+        en: 'Most international jobs on JobsJi are visa-sponsored ✅ — the employer pays for your work visa, and many also give a free flight ticket, accommodation and food. Look for the green “Visa Sponsored” badge, or use the Visa & Perks filter on the search page.',
+        hi: 'JobsJi पर ज़्यादातर विदेशी नौकरियाँ वीज़ा-स्पॉन्सर्ड हैं ✅ — कंपनी आपका वर्क वीज़ा देती है, और कई कंपनियाँ फ्री फ्लाइट टिकट, रहना और खाना भी देती हैं। हरे “Visa Sponsored” बैज को देखें या सर्च पेज पर Visa & Perks फ़िल्टर लगाएँ।',
+        uz: 'JobsJi’dagi xalqaro ishlarning aksariyati viza homiyligida ✅ — ish beruvchi ish vizangizni to‘laydi, ko‘plari bepul aviachipta, turar joy va ovqat ham beradi. Yashil “Visa Sponsored” belgisini qidiring yoki qidiruv sahifasidagi Viza filtridan foydalaning.',
+      },
+      apply: {
+        en: 'Applying is easy:\n1️⃣ Search and open a job\n2️⃣ Tap “View HR Contact & Apply”\n3️⃣ Subscribe once — the HR WhatsApp & phone unlock on every job\n4️⃣ Message HR directly and track your status in My Dashboard.',
+        hi: 'आवेदन आसान है:\n1️⃣ नौकरी खोजें और खोलें\n2️⃣ “View HR Contact & Apply” दबाएँ\n3️⃣ एक बार सब्सक्राइब करें — हर नौकरी पर HR का WhatsApp और फ़ोन खुल जाएगा\n4️⃣ सीधे HR को मैसेज करें और डैशबोर्ड में स्टेटस देखें।',
+        uz: 'Ariza berish oson:\n1️⃣ Ishni toping va oching\n2️⃣ “View HR Contact & Apply” tugmasini bosing\n3️⃣ Bir marta obuna bo‘ling — har bir ishda HR WhatsApp va telefoni ochiladi\n4️⃣ HR’ga to‘g‘ridan-to‘g‘ri yozing va kabinetda holatni kuzating.',
+      },
+      safe: {
+        en: 'Every employer on JobsJi is verified 🛡️ — we check their trade licence before any job goes live. We never charge you agent fees, and no genuine employer will ask you for money for a job. If anyone does, please report it to us on WhatsApp.',
+        hi: 'JobsJi पर हर नियोक्ता सत्यापित है 🛡️ — नौकरी लाइव होने से पहले हम उनका लाइसेंस जाँचते हैं। हम कभी एजेंट फीस नहीं लेते, और असली कंपनी नौकरी के लिए पैसे नहीं माँगती। कोई माँगे तो WhatsApp पर हमें बताएँ।',
+        uz: 'JobsJi’dagi har bir ish beruvchi tasdiqlangan 🛡️ — ish e’lon qilinishidan oldin litsenziyasini tekshiramiz. Biz agent to‘lovi olmaymiz va haqiqiy ish beruvchi ish uchun pul so‘ramaydi. Agar kimdir so‘rasa, WhatsApp orqali xabar bering.',
+      },
+      resume: {
+        en: 'You can build a clean one-page resume for free in My Dashboard → Resume. Fill your profile once, then tap “Download Resume (PDF)”.',
+        hi: 'My Dashboard → Resume में आप मुफ़्त में साफ़ एक-पेज रिज़्यूमे बना सकते हैं। एक बार प्रोफ़ाइल भरें, फिर “Download Resume (PDF)” दबाएँ।',
+        uz: 'Kabinet → Rezyume bo‘limida bepul bir sahifalik rezyume yaratishingiz mumkin. Profilni bir marta to‘ldiring, so‘ng “Download Resume (PDF)” tugmasini bosing.',
+      },
+      employer: {
+        en: 'Hiring? Posting a job is free 🎉 — verify your business licence to get the Verified Employer badge and browse subscribed candidates.',
+        hi: 'हायरिंग कर रहे हैं? नौकरी पोस्ट करना मुफ़्त है 🎉 — Verified Employer बैज के लिए अपना बिज़नेस लाइसेंस सत्यापित करें और सब्सक्राइब्ड उम्मीदवार देखें।',
+        uz: 'Xodim qidiryapsizmi? Vakansiya joylash bepul 🎉 — Tasdiqlangan ish beruvchi belgisini olish uchun litsenziyangizni tasdiqlang va nomzodlarni ko‘ring.',
+      },
+      jobsFound: {
+        en: 'Here are some verified jobs that match 👇',
+        hi: 'ये रहीं कुछ मेल खाती सत्यापित नौकरियाँ 👇',
+        uz: 'Mana mos keladigan tasdiqlangan ishlar 👇',
+      },
+      seeAll: { en: 'See all matching jobs →', hi: 'सभी नौकरियाँ देखें →', uz: 'Barcha ishlarni ko‘rish →' },
+      fallback: {
+        en: 'Sorry, I didn’t quite get that 🙏 Try asking about plans, visa, how to apply — or type a job like “driver Dubai” or “nurse”. You can also chat with our team on WhatsApp.',
+        hi: 'माफ़ कीजिए, मैं समझ नहीं पाया 🙏 प्लान, वीज़ा, आवेदन के बारे में पूछें — या “ड्राइवर दुबई” या “नर्स” जैसी नौकरी लिखें। आप हमारी टीम से WhatsApp पर भी बात कर सकते हैं।',
+        uz: 'Kechirasiz, tushunmadim 🙏 Tariflar, viza, ariza haqida so‘rang — yoki “haydovchi Dubay”, “hamshira” kabi ish yozing. Jamoamiz bilan WhatsApp’da ham gaplashishingiz mumkin.',
+      },
+      human: {
+        en: 'Sure! Our support team is on WhatsApp and usually replies within a few minutes 💬',
+        hi: 'ज़रूर! हमारी सपोर्ट टीम WhatsApp पर है और आमतौर पर कुछ ही मिनटों में जवाब देती है 💬',
+        uz: 'Albatta! Yordam jamoamiz WhatsApp’da, odatda bir necha daqiqada javob beradi 💬',
+      },
+      whatsappBtn: { en: 'Chat on WhatsApp', hi: 'WhatsApp पर बात करें', uz: 'WhatsApp’da yozish' },
+      subscribeBtn: { en: 'Subscribe Now', hi: 'अभी सब्सक्राइब करें', uz: 'Obuna bo‘lish' },
+      placeholder: { en: 'Type your question…', hi: 'अपना सवाल लिखें…', uz: 'Savolingizni yozing…' },
+      status: { en: 'Online · replies instantly', hi: 'ऑनलाइन · तुरंत जवाब', uz: 'Onlayn · darhol javob' },
+    };
+
+    const QUICK: { id: string; label: Record<Lang, string> }[] = [
+      { id: 'q:abroad', label: { en: '✈️ Jobs abroad', hi: '✈️ विदेश में नौकरी', uz: '✈️ Xorijda ish' } },
+      { id: 'q:plans', label: { en: '💳 Plans & price', hi: '💳 प्लान और कीमत', uz: '💳 Tariflar' } },
+      { id: 'q:visa', label: { en: '🛂 Visa help', hi: '🛂 वीज़ा मदद', uz: '🛂 Viza' } },
+      { id: 'q:apply', label: { en: '📝 How to apply', hi: '📝 आवेदन कैसे करें', uz: '📝 Ariza berish' } },
+      { id: 'q:safe', label: { en: '🛡️ Is it safe?', hi: '🛡️ क्या यह सुरक्षित है?', uz: '🛡️ Xavfsizmi?' } },
+      { id: 'q:human', label: { en: '💬 Talk to a person', hi: '💬 इंसान से बात करें', uz: '💬 Operator' } },
+    ];
+
+    const t = (key: string) => T[key]?.[lang()] ?? T[key]?.en ?? '';
+
+    /* ---------- Rendering ---------- */
+    const esc = (s: string) =>
+      s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] ?? c);
+
+    const addMsg = (who: 'bot' | 'me', html: string) => {
+      const el = document.createElement('div');
+      el.className = `chatbot__msg chatbot__msg--${who}`;
+      el.innerHTML = html;
+      log.appendChild(el);
+      log.scrollTop = log.scrollHeight;
+      return el;
+    };
+
+    const botSay = (text: string, extra = '') => {
+      const typing = addMsg('bot', '<span class="chatbot__typing"><i></i><i></i><i></i></span>');
+      window.setTimeout(() => {
+        typing.innerHTML = esc(text).replace(/\n/g, '<br>') + extra;
+        log.scrollTop = log.scrollHeight;
+      }, 550);
+    };
+
+    const waLink = () =>
+      `<a class="chatbot__action chatbot__action--wa" href="https://wa.me/${whatsapp}?text=${encodeURIComponent('Hi JobsJi team, I need help.')}" target="_blank" rel="noopener">💬 ${esc(t('whatsappBtn'))}</a>`;
+
+    const renderQuick = () => {
+      quick.innerHTML = '';
+      QUICK.forEach((q) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'chatbot__chip';
+        b.textContent = q.label[lang()];
+        b.addEventListener('click', () => handle(q.label[lang()], q.id));
+        quick.appendChild(b);
+      });
+      input.placeholder = t('placeholder');
+      const status = root.querySelector('[data-chat-status]');
+      if (status) status.textContent = t('status');
+    };
+
+    /* ---------- Job matching ---------- */
+    const COUNTRY_WORDS: Record<string, string[]> = {
+      uae: ['dubai', 'uae', 'abu dhabi', 'sharjah', 'emirates', 'दुबई', 'dubay'],
+      saudi: ['saudi', 'riyadh', 'jeddah', 'ksa', 'सऊदी', 'saudiya'],
+      qatar: ['qatar', 'doha', 'कतर', 'qatar'],
+      uzbekistan: ['uzbek', 'tashkent', 'samarkand', 'उज़्बेकिस्तान', 'uzbekistan', 'o‘zbekiston', "o'zbekiston", 'toshkent'],
+      europe: ['europe', 'poland', 'warsaw', 'germany', 'portugal', 'यूरोप', 'yevropa'],
+      russia: ['russia', 'moscow', 'रूस', 'rossiya', 'moskva'],
+      india: ['india', 'bengaluru', 'bangalore', 'delhi', 'mumbai', 'pune', 'hyderabad', 'भारत', 'hindiston'],
+    };
+    const SKILL_WORDS: Record<string, string[]> = {
+      driver: ['driver', 'drive', 'truck', 'delivery', 'ड्राइवर', 'haydovchi'],
+      nurse: ['nurse', 'nursing', 'hospital', 'नर्स', 'hamshira'],
+      chef: ['chef', 'cook', 'kitchen', 'hotel', 'शेफ', 'कुक', 'oshpaz'],
+      engineer: ['engineer', 'civil', 'site', 'supervisor', 'इंजीनियर', 'muhandis'],
+      developer: ['developer', 'software', 'react', 'programmer', 'डेवलपर', 'dasturchi'],
+      welder: ['welder', 'welding', 'technician', 'mechanic', 'वेल्डर', 'payvandchi', 'texnik'],
+      sales: ['sales', 'marketing', 'सेल्स', 'sotuv'],
+      remote: ['remote', 'work from home', 'wfh', 'घर से', 'uydan'],
+    };
+
+    const findJobs = (text: string, forceAbroad = false) => {
+      const q = text.toLowerCase();
+      const countries = Object.entries(COUNTRY_WORDS)
+        .filter(([, words]) => words.some((w) => q.includes(w)))
+        .map(([c]) => c);
+      const skills = Object.entries(SKILL_WORDS)
+        .filter(([, words]) => words.some((w) => q.includes(w)))
+        .map(([s]) => SKILL_WORDS[s]!.filter((w) => /^[a-z ]+$/.test(w)));
+
+      if (!countries.length && !skills.length && !forceAbroad) return null;
+
+      const results = jobs.filter((job) => {
+        if (forceAbroad && job.country === 'india') return false;
+        if (countries.length && !countries.includes(job.country)) return false;
+        if (skills.length && !skills.some((words) => words.some((w) => job.text.includes(w)))) return false;
+        return true;
+      });
+
+      const params = new URLSearchParams();
+      if (countries.length === 1) params.set('country', countries[0]!);
+      else if (forceAbroad) params.set('region', 'international');
+      if (skills.length === 1) params.set('q', skills[0]![0]!);
+      return { results, href: `/jobs${params.toString() ? `?${params}` : ''}` };
+    };
+
+    const jobsHtml = (list: BotJob[], href: string) =>
+      `<div class="chatbot__jobs">${list
+        .slice(0, 3)
+        .map(
+          (j) =>
+            `<a class="chatbot__job" href="/jobs/${esc(j.slug)}"><b>${esc(j.flag)} ${esc(j.title)}</b><span>${esc(j.city)}${j.salary ? ` · ${esc(j.salary)}` : ''}${j.visa ? ' · ✅ Visa' : ''}</span></a>`,
+        )
+        .join('')}</div><a class="chatbot__action" href="${esc(href)}">${esc(t('seeAll'))}</a>`;
+
+    /* ---------- Intent handling ---------- */
+    const has = (q: string, words: string[]) => words.some((w) => q.includes(w));
+
+    const handle = (text: string, intent?: string) => {
+      addMsg('me', esc(text));
+      const q = text.toLowerCase();
+
+      if (intent === 'q:abroad') {
+        const found = findJobs('', true);
+        return botSay(t('jobsFound'), found ? jobsHtml(found.results, found.href) : '');
+      }
+      if (intent === 'q:plans' || has(q, ['plan', 'price', 'cost', 'fee', 'subscri', 'pay', '₹', 'प्लान', 'कीमत', 'पैसे', 'शुल्क', 'narx', 'tarif', 'obuna', 'to‘lov'])) {
+        return botSay(
+          t('plans'),
+          `<button class="chatbot__action chatbot__action--cta" type="button" data-chat-buy>⚡ ${esc(t('subscribeBtn'))}</button>`,
+        );
+      }
+      if (intent === 'q:visa' || has(q, ['visa', 'passport', 'flight', 'ticket', 'वीज़ा', 'वीजा', 'पासपोर्ट', 'viza', 'pasport'])) {
+        return botSay(t('visa'));
+      }
+      if (intent === 'q:apply' || has(q, ['apply', 'how', 'contact', 'hr', 'unlock', 'आवेदन', 'कैसे', 'ariza', 'qanday'])) {
+        return botSay(t('apply'));
+      }
+      if (intent === 'q:safe' || has(q, ['safe', 'fake', 'scam', 'fraud', 'trust', 'verified', 'genuine', 'सुरक्षित', 'फ़र्ज़ी', 'धोखा', 'xavfsiz', 'firibgar'])) {
+        return botSay(t('safe'));
+      }
+      if (has(q, ['resume', 'cv', 'biodata', 'रिज़्यूमे', 'rezyume'])) {
+        return botSay(t('resume'), `<a class="chatbot__action" href="/dashboard?tab=resume">📄 Resume</a>`);
+      }
+      if (has(q, ['employer', 'hire', 'hiring', 'post a job', 'recruit', 'नियोक्ता', 'ish beruvchi'])) {
+        return botSay(t('employer'), `<a class="chatbot__action" href="/employers">🏢 For Employers</a>`);
+      }
+      if (intent === 'q:human' || has(q, ['human', 'person', 'agent', 'support', 'call', 'whatsapp', 'talk', 'बात', 'operator', 'yordam'])) {
+        return botSay(t('human'), waLink());
+      }
+
+      const found = findJobs(q);
+      if (found) {
+        return found.results.length
+          ? botSay(t('jobsFound'), jobsHtml(found.results, found.href))
+          : botSay(t('fallback'), waLink());
+      }
+      if (has(q, ['hi', 'hello', 'hey', 'namaste', 'नमस्ते', 'salom', 'assalomu'])) {
+        return botSay(t('hello'));
+      }
+      return botSay(t('fallback'), waLink());
+    };
+
+    /* ---------- Open / close ---------- */
+    let greeted = false;
+    const setOpen = (open: boolean) => {
+      panel.hidden = !open;
+      root.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      openIcon.hidden = open;
+      closeIcon.hidden = !open;
+      if (open) {
+        badge?.remove();
+        renderQuick();
+        if (!greeted) {
+          greeted = true;
+          botSay(t('hello'));
+        }
+        window.setTimeout(() => input.focus(), 60);
+      }
+    };
+
+    toggle.addEventListener('click', () => setOpen(panel.hidden));
+    root.querySelector('[data-chat-close]')?.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) setOpen(false);
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      handle(text);
+    });
+
+    log.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('[data-chat-buy]')) {
+        setOpen(false);
+        document.dispatchEvent(new CustomEvent('jobsji:checkout', { detail: { planId: 'global-pro' } }));
+      }
+    });
+
+    // Keep quick replies in sync with the EN/HI/UZ toggle.
+    document.querySelectorAll('[data-lang-btn]').forEach((btn) =>
+      btn.addEventListener('click', () => window.setTimeout(renderQuick, 0)),
+    );
+  }
+</script>

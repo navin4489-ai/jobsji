@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" role="img" aria-label="Illustration of an Indian city skyline with a monument">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDBA74"/>
+      <stop offset="1" stop-color="#FFEDD5"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="240" fill="url(#sky)"/>
+  <circle cx="200" cy="96" r="44" fill="#FFF7ED" opacity="0.85"/>
+  <!-- back towers -->
+  <g fill="#1e4a75" opacity="0.55">
+    <rect x="24" y="120" width="30" height="90"/><rect x="60" y="100" width="24" height="110"/>
+    <rect x="316" y="110" width="26" height="100"/><rect x="348" y="130" width="30" height="80"/>
+  </g>
+  <!-- monument -->
+  <g fill="#FFFFFF">
+    <rect x="120" y="150" width="160" height="60"/>
+    <path d="M160 150a40 40 0 0 1 80 0z"/>
+    <rect x="196" y="86" width="8" height="24"/>
+    <path d="M200 76l5 10h-10z"/>
+    <rect x="108" y="96" width="10" height="114"/><rect x="282" y="96" width="10" height="114"/>
+    <path d="M106 96h14l-7-12z"/><path d="M280 96h14l-7-12z"/>
+  </g>
+  <path d="M184 210v-34a16 16 0 0 1 32 0v34z" fill="#F59E0B" opacity="0.55"/>
+  <g fill="#F59E0B" opacity="0.4">
+    <path d="M140 210v-22a8 8 0 0 1 16 0v22z"/><path d="M244 210v-22a8 8 0 0 1 16 0v22z"/>
+  </g>
+  <rect y="210" width="400" height="30" fill="#10B981" opacity="0.55"/>
+  <rect y="224" width="400" height="16" fill="#0F2942" opacity="0.85"/>
+</svg>

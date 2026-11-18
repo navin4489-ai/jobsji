@@ -74,6 +74,16 @@ const steps = [
 ];
 
 const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
+
+const countIn = (countries: string[]) =>
+  allJobs.filter((job) => countries.includes(job.country ?? 'india')).length;
+
+const destinations = [
+  { name: 'India', flag: '🇮🇳', img: '/images/dest-india.svg', alt: 'Indian city skyline', href: '/jobs?region=india', count: countIn(['india']), note: 'Direct company jobs' },
+  { name: 'Dubai & Gulf', flag: '🇦🇪', img: '/images/dest-dubai.svg', alt: 'Dubai skyline', href: '/jobs?country=gulf', count: countIn(['uae', 'saudi', 'qatar']), note: 'Tax-free salary' },
+  { name: 'Uzbekistan', flag: '🇺🇿', img: '/images/dest-uzbekistan.svg', alt: 'Registan, Uzbekistan', href: '/jobs?country=uzbekistan', count: countIn(['uzbekistan']), note: 'Free visa & stay' },
+  { name: 'Europe & Russia', flag: '🇪🇺', img: '/images/dest-europe.svg', alt: 'European old town', href: '/jobs?region=international', count: countIn(['europe', 'russia']), note: 'Work permit support' },
+];
 ---
 
 <BaseLayout
@@ -84,7 +94,8 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
 >
   <!-- Hero -->
   <section class="hero">
-    <div class="container hero__inner">
+    <div class="container hero__grid">
+    <div class="hero__inner">
       <span class="eyebrow">
         <Icon name="sparkles" />
         <span data-i18n="hero.kicker">Verified Jobs Across India & Abroad</span>
@@ -133,6 +144,39 @@ const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
           ))
         }
       </p>
+    </div>
+    <img
+      class="hero__art"
+      src="/images/hero-global.svg"
+      alt="Flight paths from India to Dubai, Tashkent and Europe with verified job cards"
+      width="520"
+      height="440"
+      fetchpriority="high"
+    />
+    </div>
+  </section>
+
+  <!-- Destinations -->
+  <section class="container section--tight" aria-labelledby="dest-title">
+    <SectionHeading
+      kicker="Popular destinations"
+      title="Where do you want to work?"
+      subtitle="Verified employers hiring right now — at home and abroad."
+    />
+    <div class="dest-grid">
+      {
+        destinations.map((d) => (
+          <a class="dest-card" href={d.href}>
+            <img src={d.img} alt={d.alt} width="400" height="240" loading="lazy" />
+            <div class="dest-card__body">
+              <b>
+                <span class="flag">{d.flag}</span> {d.name}
+              </b>
+              <span>{d.count} open jobs · {d.note}</span>
+            </div>
+          </a>
+        ))
+      }
     </div>
   </section>
 
