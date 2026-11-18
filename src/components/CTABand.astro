@@ -1,0 +1,45 @@
+import Icon from './Icon.astro';
+import { withBase } from '../lib/links';
+
+interface Props {
+  kicker?: string;
+  title: string;
+  text: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+}
+
+const {
+  kicker,
+  title,
+  text,
+  primaryLabel,
+  primaryHref,
+  secondaryLabel,
+  secondaryHref,
+} = Astro.props;
+---
+
+<section class="container section--tight">
+  <div class="cta-band">
+    <div>
+      {kicker && <span class="kicker" style="color:#c7d2fe">{kicker}</span>}
+      <h2>{title}</h2>
+      <p>{text}</p>
+    </div>
+    <div class="cta-band__actions">
+      <a class="btn btn-white btn-lg" href={withBase(primaryHref)}>
+        {primaryLabel} <Icon name="arrow-right" />
+      </a>
+      {
+        secondaryLabel && secondaryHref && (
+          <a class="btn btn-onbrand btn-lg" href={withBase(secondaryHref)}>
+            {secondaryLabel}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>

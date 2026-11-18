@@ -1,0 +1,122 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Icon from '../components/Icon.astro';
+import CTABand from '../components/CTABand.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+import { SITE_NAME } from '../config/site';
+
+const values = [
+  {
+    icon: 'rupee',
+    title: 'Transparency first',
+    text: 'Salary bands, openings and posted dates on every listing — candidates deserve the full picture before they apply.',
+  },
+  {
+    icon: 'shield',
+    title: 'Safety by design',
+    text: 'Jobsji never charges job seekers. Every employer submission is reviewed by a human before publishing.',
+  },
+  {
+    icon: 'layers',
+    title: 'Built for India',
+    text: 'LPA salary formats, Indian city coverage, fresher-friendly filters and work modes that match how India hires.',
+  },
+];
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="About Jobsji — India’s transparent job discovery portal"
+  description="Jobsji helps job seekers in India discover roles with real salary bands and helps employers publish reviewed listings fast. Learn how it works."
+  path="/about"
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container doc">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+      <h1>About {SITE_NAME}</h1>
+      <p class="lead">
+        {SITE_NAME} exists to make job discovery in India honest and fast — real
+        salary information, reviewed listings and zero fees for candidates.
+      </p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="doc">
+      <h2>Our mission</h2>
+      <p>
+        Applying for a job in India too often means guessing at pay, wading through
+        stale listings and paying “consultants” who promise interviews. We built
+        {SITE_NAME} to flip that: every role shows what it pays, when it was posted and
+        how to apply — and it stays free for the people doing the applying.
+      </p>
+
+      <h2>How {SITE_NAME} works</h2>
+      <ul>
+        <li>
+          <strong>For job seekers —</strong> search live openings by skill, category,
+          location, salary and experience. Open any listing for the full description,
+          then apply directly to the employer by email or their ATS.
+        </li>
+        <li>
+          <strong>For employers —</strong> submit a role, get it reviewed within one
+          business day, and reach candidates who are actively searching for exactly
+          what you’re hiring.
+        </li>
+        <li>
+          <strong>For the web —</strong> every job, category and location page is
+          search-engine optimised with structured data, sitemaps and fast, accessible
+          HTML.
+        </li>
+      </ul>
+
+      <h2>What we believe</h2>
+      <div class="features mt-24">
+        {
+          values.map((value) => (
+            <div class="feature">
+              <span class="feature__icon">
+                <Icon name={value.icon} />
+              </span>
+              <h3>{value.title}</h3>
+              <p>{value.text}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <h2>Editorial policy</h2>
+      <p>
+        Listings are not automated imports. A human reviews every submission for
+        accuracy, legitimate pay and compliance with Indian labour regulations.
+        Postings that charge candidates, promise guaranteed jobs or misrepresent pay
+        are rejected. Employers can request corrections or takedowns at any time by
+        writing to us.
+      </p>
+
+      <h2>Status &amp; roadmap</h2>
+      <p>
+        {SITE_NAME} is at release 1.0 — a fast, indexable job board with a documented
+        content pipeline. Next up: application tracking, employer dashboards, alerts
+        and the move to our permanent home on <strong>jobsji.in</strong>.
+      </p>
+    </div>
+  </section>
+
+  <CTABand
+    kicker="Get started"
+    title="Ready to find your next role?"
+    text="Browse live jobs with real salary bands — or reach out if you’re hiring and want your roles here."
+    primaryLabel="Search jobs"
+    primaryHref="/jobs"
+    secondaryLabel="Contact us"
+    secondaryHref="/contact"
+  />
+</BaseLayout>

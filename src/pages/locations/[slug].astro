@@ -1,0 +1,89 @@
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JobCard from '../../components/JobCard.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import CTABand from '../../components/CTABand.astro';
+import { locations } from '../../data/locations';
+import { jobsInLocation } from '../../lib/jobs';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  return locations.map((location) => ({
+    params: { slug: location.slug },
+    props: { location },
+  }));
+}
+
+const { location } = Astro.props;
+const locationJobs = jobsInLocation(location.slug);
+const isRemote = location.slug === 'remote-india';
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Locations', path: '/locations' },
+    { name: location.name, path: `/locations/${location.slug}` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${location.name} jobs`,
+    description: location.description,
+  },
+];
+---
+
+<BaseLayout
+  title={`${locationJobs.length} Jobs in ${location.name} — ${location.state} | Jobsji`}
+  description={`${location.description} Explore ${locationJobs.length} live jobs in ${location.name} on Jobsji.`}
+  path={`/locations/${location.slug}`}
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Locations', href: '/locations' },
+          { label: location.name },
+        ]}
+      />
+      <h1>{isRemote ? 'Remote jobs across India' : `Jobs in ${location.name}`}</h1>
+      <p class="lead">{location.description}</p>
+      <div class="job-hero__badges">
+        <span class="chip chip--brand">{locationJobs.length} open roles</span>
+        <span class="chip chip--plain">{location.state}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    {
+      locationJobs.length > 0 ? (
+        <div class="jobs-list">
+          {locationJobs.map((job) => (
+            <JobCard job={job} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title={`No live jobs in ${location.name} right now`}
+          message="Listings are added daily — browse all open roles while you wait."
+          actionLabel="Browse all jobs"
+          actionHref="/jobs"
+        />
+      )
+    }
+  </section>
+
+  <CTABand
+    kicker="Explore more"
+    title="Not location-bound? Search every open role"
+    text="Filter by salary, experience and work mode across all locations — or switch to remote-only in one click."
+    primaryLabel="Search all jobs"
+    primaryHref="/jobs"
+    secondaryLabel="Remote jobs"
+    secondaryHref="/jobs?workplace=remote"
+  />
+</BaseLayout>

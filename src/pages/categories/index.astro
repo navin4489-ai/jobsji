@@ -1,0 +1,75 @@
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Icon from '../../components/Icon.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import { categories } from '../../data/categories';
+import { activeJobs } from '../../lib/jobs';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { withBase } from '../../lib/links';
+
+const allJobs = activeJobs();
+const counts = new Map(
+  categories.map((cat) => [cat.slug, allJobs.filter((job) => job.categorySlug === cat.slug).length]),
+);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Categories', path: '/categories' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Job Categories — Browse roles by skill in India"
+  description="Explore Jobsji job categories: software development, data & analytics, sales, digital marketing, design, finance, customer support and operations roles across India."
+  path="/categories"
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Categories' }]} />
+      <h1>Job categories</h1>
+      <p class="lead">
+        Pick a category to see every live role in that space — each page is updated
+        as employers publish new openings.
+      </p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="grid-cards">
+      {
+        categories.map((cat) => (
+          <a class="tile" href={withBase(`/categories/${cat.slug}`)}>
+            <div class="tile__head">
+              <span class="tile__icon">
+                <Icon name={cat.icon} />
+              </span>
+              <span class="tile__count">{counts.get(cat.slug) ?? 0} jobs</span>
+            </div>
+            <h3>{cat.name}</h3>
+            <p>{cat.description}</p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="cta-band">
+      <div>
+        <h2>Don’t see your category?</h2>
+        <p>
+          We’re expanding into new verticals every week. Tell us what you’re hiring
+          for and we’ll prioritise it.
+        </p>
+      </div>
+      <div class="cta-band__actions">
+        <a class="btn btn-white btn-lg" href={withBase('/contact')}>
+          Contact us <Icon name="arrow-right" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

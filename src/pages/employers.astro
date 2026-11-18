@@ -1,0 +1,318 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Icon from '../components/Icon.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, SITE_NAME } from '../config/site';
+import { withBase } from '../lib/links';
+
+const pricing = [
+  {
+    name: 'Starter',
+    price: '₹0',
+    period: 'per listing',
+    blurb: 'Get your role live and indexed — perfect for occasional hiring.',
+    features: [
+      'Standard listing on Jobsji',
+      'Full description & skills',
+      'Apply-by-email or ATS link',
+      'Indexed in search engines',
+    ],
+    cta: 'Post for free',
+    featured: false,
+  },
+  {
+    name: 'Featured',
+    price: '₹499',
+    period: 'per listing · 30 days',
+    blurb: 'Stand out with a badge and homepage placement.',
+    features: [
+      'Everything in Starter',
+      '★ Featured badge on cards',
+      'Homepage “Featured jobs” slot',
+      'Priority in category & location pages',
+      'Shareable listing link',
+    ],
+    cta: 'Get featured',
+    featured: true,
+  },
+  {
+    name: 'Spotlight',
+    price: '₹1,499',
+    period: 'per campaign · 30 days',
+    blurb: 'For volume hiring — multiple roles, maximum reach.',
+    features: [
+      'Everything in Featured',
+      'Up to 5 listings bundled',
+      'Top of relevant category pages',
+      'Newsletter & social mention',
+      'Weekly performance summary',
+    ],
+    cta: 'Talk to sales',
+    featured: false,
+  },
+];
+
+const faqs = [
+  {
+    q: 'How fast is a listing published?',
+    a: 'Submissions are editorially reviewed within one business day. Once approved, the job goes live immediately and is picked up by search engines on the next crawl.',
+  },
+  {
+    q: 'Do you accept bulk hiring?',
+    a: 'Yes — the Spotlight plan bundles up to 5 listings, and we support higher volumes for enterprise hiring. Email us for a custom quote.',
+  },
+  {
+    q: 'Can candidates apply directly?',
+    a: 'Yes. Every listing supports an apply-by-email flow or a link to your own ATS, careers page or Google Form.',
+  },
+  {
+    q: 'What can’t be posted?',
+    a: 'No listings that charge candidates, promise guaranteed jobs, or violate India’s labour and equal-opportunity regulations. We review everything manually.',
+  },
+];
+
+const postJsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Employers', path: '/employers' },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Jobsji job posting',
+    provider: { '@type': 'Organization', name: SITE_NAME },
+    description: 'Post jobs on Jobsji — free and featured listing plans for Indian employers.',
+  },
+];
+---
+
+<BaseLayout
+  title="Post a Job — Hire in India | Jobsji Employers"
+  description="Publish your job on Jobsji and reach candidates across India. Free listings, featured slots from ₹499, reviewed within one business day."
+  path="/employers"
+  jsonLd={postJsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Employers' }]} />
+      <h1>Hire faster with Jobsji</h1>
+      <p class="lead">
+        Get your openings in front of job seekers across India — reviewed by a human,
+        live within a business day, and free to start.
+      </p>
+      <div class="form-actions">
+        <a class="btn btn-primary btn-lg" href="#post">
+          <Icon name="send" /> Post a job now
+        </a>
+        <a class="btn btn-outline btn-lg" href="#pricing">See pricing</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="features">
+      <div class="feature">
+        <span class="feature__icon"><Icon name="target" /></span>
+        <h3>Intent-driven traffic</h3>
+        <p>
+          Candidates arrive searching for exact roles and cities — not scrolling a
+          social feed.
+        </p>
+      </div>
+      <div class="feature">
+        <span class="feature__icon"><Icon name="clock" /></span>
+        <h3>Live in one business day</h3>
+        <p>
+          Every submission is manually reviewed for quality, then published and
+          indexed automatically.
+        </p>
+      </div>
+      <div class="feature">
+        <span class="feature__icon"><Icon name="rupee" /></span>
+        <h3>Free to start</h3>
+        <p>
+          Standard listings cost nothing. Upgrade to Featured only when you want
+          extra reach.
+        </p>
+      </div>
+      <div class="feature">
+        <span class="feature__icon"><Icon name="shield" /></span>
+        <h3>Quality candidates</h3>
+        <p>
+          Salary-transparent listings attract serious applicants — and we never
+          charge candidates.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" id="pricing">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">Pricing</span>
+          <h2>Simple, transparent plans</h2>
+          <p class="lead">No subscriptions, no hidden fees. Pay per listing when you choose to.</p>
+        </div>
+      </div>
+
+      <div class="pricing">
+        {
+          pricing.map((plan) => (
+            <div class:list={['price-card', plan.featured && 'price-card--featured']}>
+              {plan.featured && (
+                <span class="chip chip--amber price-card__tag">Most popular</span>
+              )}
+              <h3>{plan.name}</h3>
+              <div class="price">
+                {plan.price} <small>{plan.period}</small>
+              </div>
+              <p>{plan.blurb}</p>
+              <ul>
+                {plan.features.map((feature) => (
+                  <li>
+                    <Icon name="check" /> <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                class:list={['btn', plan.featured ? 'btn-primary' : 'btn-outline']}
+                href="#post"
+              >
+                {plan.cta}
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" id="post">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Post a job</span>
+        <h2>Tell us about the role</h2>
+        <p class="lead">
+          Fill this in and we’ll compose an email to our editorial team — review
+          happens within one business day.
+        </p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="note">
+        Prefer your own inbox? Send the details directly to
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> with the job
+        description attached.
+      </div>
+
+      <form id="post-form" data-contact={CONTACT_EMAIL} novalidate>
+        <div class="form-grid">
+          <div class="field" style="margin-top:0">
+            <label for="p-company">Company name *</label>
+            <input class="input" id="p-company" name="company" required placeholder="Acme Technologies" />
+          </div>
+          <div class="field" style="margin-top:0">
+            <label for="p-email">Your work email *</label>
+            <input class="input" id="p-email" name="email" type="email" required placeholder="you@company.com" />
+          </div>
+          <div class="field">
+            <label for="p-title">Job title *</label>
+            <input class="input" id="p-title" name="title" required placeholder="Senior React Developer" />
+          </div>
+          <div class="field">
+            <label for="p-location">Location / work mode *</label>
+            <input class="input" id="p-location" name="location" required placeholder="Bengaluru · Hybrid" />
+          </div>
+          <div class="field">
+            <label for="p-type">Employment type</label>
+            <select class="select" id="p-type" name="type">
+              <option>Full-time</option>
+              <option>Part-time</option>
+              <option>Contract</option>
+              <option>Internship</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="p-plan">Listing plan</label>
+            <select class="select" id="p-plan" name="plan">
+              <option>Starter (free)</option>
+              <option>Featured (₹499)</option>
+              <option>Spotlight (₹1,499)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="p-details">Role details *</label>
+          <textarea
+            class="textarea"
+            id="p-details"
+            name="details"
+            required
+            placeholder="Responsibilities, requirements, salary band and how to apply…"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit">
+            <Icon name="send" /> Submit job for review
+          </button>
+          <p class="hint">We reply from {CONTACT_EMAIL} within one business day.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="section-head">
+      <div>
+        <span class="kicker">FAQ</span>
+        <h2>Employer questions</h2>
+      </div>
+    </div>
+    <div class="faq">
+      {
+        faqs.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#post-form');
+  const contactEmail = form?.dataset.contact ?? 'hello@jobsji.in';
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = new FormData(form);
+    const get = (key: string) => String(data.get(key) ?? '').trim();
+
+    const subject = `Job posting: ${get('title')} — ${get('company')}`;
+    const body = [
+      'Hello Jobsji editorial team,',
+      '',
+      `Company: ${get('company')}`,
+      `Contact email: ${get('email')}`,
+      `Job title: ${get('title')}`,
+      `Location / work mode: ${get('location')}`,
+      `Employment type: ${get('type')}`,
+      `Listing plan: ${get('plan')}`,
+      '',
+      'Role details:',
+      get('details'),
+      '',
+      '— Sent from jobsji.in/employers',
+    ].join('\n');
+
+    const href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = href;
+  });
+</script>

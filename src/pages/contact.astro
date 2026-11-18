@@ -1,0 +1,153 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Icon from '../components/Icon.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, SITE_NAME } from '../config/site';
+
+const topics = ['General question', 'Job listing issue', 'Employer / hiring', 'Report a listing', 'Partnerships'];
+
+const faqs = [
+  {
+    q: 'How do I report a suspicious listing?',
+    a: `Email ${CONTACT_EMAIL} with the listing link and a short description. We take down anything that asks candidates for money or promises guaranteed jobs.`,
+  },
+  {
+    q: 'How do I get my job published?',
+    a: 'Use the “Post a job” form on the Employers page — submissions are reviewed within one business day.',
+  },
+  {
+    q: 'Do you charge job seekers?',
+    a: 'Never. Jobsji is free for candidates at every stage, including applying.',
+  },
+];
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Contact', path: '/contact' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Contact Jobsji — Support, listings & partnerships"
+  description="Reach the Jobsji team for job listing issues, employer enquiries, partnerships or support. We reply within one business day."
+  path="/contact"
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
+      <h1>Contact us</h1>
+      <p class="lead">
+        Questions about a listing, hiring on Jobsji, or working together? We reply
+        within one business day.
+      </p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="info-grid">
+      <div class="info-card">
+        <Icon name="mail" />
+        <h3>Email</h3>
+        <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+        <p>Best for listing issues, support and hiring enquiries.</p>
+      </div>
+      <div class="info-card">
+        <Icon name="clock" />
+        <h3>Response time</h3>
+        <p>Within 1 business day</p>
+        <p>Monday–Friday, 10:00–18:00 IST.</p>
+      </div>
+      <div class="info-card">
+        <Icon name="users" />
+        <h3>Partnerships</h3>
+        <p><a href={`mailto:${CONTACT_EMAIL}?subject=Partnership%20enquiry`}>Colleges &amp; communities</a></p>
+        <p>Campus programmes, referrals and content collaborations.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Send a message</span>
+        <h2>Write to us</h2>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <form id="contact-form" data-contact={CONTACT_EMAIL} novalidate>
+        <div class="form-grid">
+          <div class="field" style="margin-top:0">
+            <label for="c-name">Your name *</label>
+            <input class="input" id="c-name" name="name" required placeholder="Priya Sharma" />
+          </div>
+          <div class="field" style="margin-top:0">
+            <label for="c-email">Email *</label>
+            <input class="input" id="c-email" name="email" type="email" required placeholder="you@example.com" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="c-topic">Topic</label>
+          <select class="select" id="c-topic" name="topic">
+            {topics.map((topic) => <option>{topic}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="c-message">Message *</label>
+          <textarea
+            class="textarea"
+            id="c-message"
+            name="message"
+            required
+            placeholder="Tell us how we can help…"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit">
+            <Icon name="send" /> Send message
+          </button>
+          <p class="hint">Opens your email app with the message pre-filled — nothing is stored on this site.</p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="section-head">
+      <div>
+        <span class="kicker">Quick answers</span>
+        <h2>Frequently asked</h2>
+      </div>
+    </div>
+    <div class="faq">
+      {
+        faqs.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#contact-form');
+  const contactEmail = form?.dataset.contact ?? 'hello@jobsji.in';
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = new FormData(form);
+    const get = (key: string) => String(data.get(key) ?? '').trim();
+
+    const subject = `[${get('topic')}] ${get('name')}`;
+    const body = [get('message'), '', `From: ${get('name')} <${get('email')}>`, '— Sent from jobsji.in/contact'].join('\n');
+    const href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = href;
+  });
+</script>

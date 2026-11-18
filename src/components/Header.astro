@@ -1,0 +1,85 @@
+import Icon from './Icon.astro';
+import { withBase } from '../lib/links';
+
+interface Props {
+  activePath: string;
+}
+
+const { activePath } = Astro.props;
+
+const links = [
+  { href: '/jobs', label: 'Jobs' },
+  { href: '/categories', label: 'Categories' },
+  { href: '/locations', label: 'Locations' },
+  { href: '/employers', label: 'Employers' },
+  { href: '/about', label: 'About' },
+];
+
+const isActive = (href: string) =>
+  activePath === href || activePath.startsWith(`${href}/`);
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href={withBase('/')} aria-label="Jobsji home">
+      <span class="brand__mark" aria-hidden="true">J</span>
+      <span>Jobsji<span class="brand__dot">.</span></span>
+    </a>
+
+    <nav class="nav" id="primary-nav" data-nav aria-label="Primary">
+      {
+        links.map((link) => (
+          <a
+            href={withBase(link.href)}
+            aria-current={isActive(link.href) ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="header-actions">
+      <a class="btn btn-outline btn-sm" href={withBase('/employers')}>
+        For Employers
+      </a>
+      <a class="btn btn-primary btn-sm" href={withBase('/employers#post')}>
+        Post a Job
+      </a>
+      <button
+        class="nav-toggle"
+        type="button"
+        data-nav-toggle
+        aria-controls="primary-nav"
+        aria-expanded="false"
+        aria-label="Toggle navigation menu"
+      >
+        <span data-icon-open><Icon name="menu" /></span>
+        <span data-icon-close hidden><Icon name="x" /></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const openIcon = document.querySelector<HTMLElement>('[data-icon-open]');
+  const closeIcon = document.querySelector<HTMLElement>('[data-icon-close]');
+
+  btn?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('is-open') ?? false;
+    btn.setAttribute('aria-expanded', String(open));
+    if (openIcon) openIcon.hidden = open;
+    if (closeIcon) closeIcon.hidden = !open;
+  });
+
+  nav?.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => {
+      nav.classList.remove('is-open');
+      btn?.setAttribute('aria-expanded', 'false');
+      if (openIcon) openIcon.hidden = false;
+      if (closeIcon) closeIcon.hidden = true;
+    });
+  });
+</script>

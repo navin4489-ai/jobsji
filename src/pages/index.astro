@@ -1,0 +1,271 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import JobCard from '../components/JobCard.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import CTABand from '../components/CTABand.astro';
+import Icon from '../components/Icon.astro';
+import { activeJobs, featuredJobs, newestJobs } from '../lib/jobs';
+import { categories } from '../data/categories';
+import { locations } from '../data/locations';
+import { organizationJsonLd, websiteJsonLd } from '../lib/seo';
+import { withBase } from '../lib/links';
+import { SITE_DESCRIPTION, SITE_TAGLINE } from '../config/site';
+
+const allJobs = activeJobs();
+const featured = featuredJobs(6);
+const latest = newestJobs(12);
+const featuredSlugs = new Set(featured.map((job) => job.slug));
+const homeJobs = [...featured, ...latest.filter((job) => !featuredSlugs.has(job.slug))].slice(0, 6);
+
+const categoryCounts = new Map(
+  categories.map((cat) => [cat.slug, allJobs.filter((job) => job.categorySlug === cat.slug).length]),
+);
+const locationCounts = new Map(
+  locations.map((loc) => [loc.slug, allJobs.filter((job) => job.locationSlug === loc.slug).length]),
+);
+const activeCompanies = new Set(allJobs.map((job) => job.companySlug)).size;
+
+const quickChips = [
+  { label: 'Remote jobs', href: '/jobs?workplace=remote' },
+  { label: 'Fresher jobs', href: '/jobs?exp=fresher' },
+  { label: 'IT jobs', href: '/jobs?category=software-development' },
+  { label: 'Delhi NCR', href: '/jobs?location=delhi-ncr' },
+];
+
+const steps = [
+  {
+    title: 'Search',
+    text: 'Filter live openings by skill, city, salary, experience and work mode — results update instantly.',
+  },
+  {
+    title: 'Compare',
+    text: 'Every listing shows salary bands, openings and posted date, so you never apply blind.',
+  },
+  {
+    title: 'Apply',
+    text: 'Apply straight to the employer by email or their ATS — free for candidates, always.',
+  },
+];
+
+const features = [
+  {
+    icon: 'user',
+    title: 'Fresher friendly',
+    text: 'Entry-level roles and internships surface first when you filter for zero experience.',
+  },
+  {
+    icon: 'rupee',
+    title: 'Salary on every card',
+    text: 'Real pay bands in LPA on each listing — no vague “competitive salary” placeholders.',
+  },
+  {
+    icon: 'shield',
+    title: 'Free for job seekers',
+    text: 'Jobsji never charges candidates and never asks you to pay to apply. Ever.',
+  },
+  {
+    icon: 'check',
+    title: 'Reviewed listings',
+    text: 'Every employer submission is editorially reviewed before it goes live on Jobsji.',
+  },
+];
+
+const homeJsonLd = [organizationJsonLd(), websiteJsonLd()];
+---
+
+<BaseLayout
+  title="Jobsji — Find jobs that match your skills"
+  description={SITE_DESCRIPTION}
+  path="/"
+  jsonLd={homeJsonLd}
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <span class="eyebrow">
+        <Icon name="sparkles" /> India’s job discovery portal
+      </span>
+      <div>
+        <h1>Find jobs that match <em>your skills</em></h1>
+        <p class="lead">
+          {SITE_TAGLINE} — explore {allJobs.length}+ live openings across India’s
+          top cities, categories and work modes. Salary-first listings for freshers
+          and experienced professionals.
+        </p>
+      </div>
+
+      <form class="searchbar" action={withBase('/jobs')} method="get" role="search">
+        <label class="searchbar__field">
+          <Icon name="search" />
+          <span class="visually-hidden">Keyword</span>
+          <input
+            type="search"
+            name="q"
+            placeholder="Job title, skill or company"
+            autocomplete="off"
+          />
+        </label>
+        <label class="searchbar__field">
+          <Icon name="map-pin" />
+          <span class="visually-hidden">Location</span>
+          <select name="location">
+            <option value="">All locations</option>
+            {locations.map((loc) => <option value={loc.slug}>{loc.name}</option>)}
+          </select>
+        </label>
+        <button class="btn btn-primary btn-lg" type="submit">
+          <Icon name="search" /> Search jobs
+        </button>
+      </form>
+
+      <p class="quick-chips">
+        <span>Trending:</span>
+        {
+          quickChips.map((chip) => (
+            <a class="chip" href={withBase(chip.href)}>
+              {chip.label}
+            </a>
+          ))
+        }
+      </p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="container section--tight" aria-label="Jobsji at a glance">
+    <div class="stats">
+      <div class="stat"><b>{allJobs.length}+</b><span>Live jobs</span></div>
+      <div class="stat"><b>{activeCompanies}+</b><span>Hiring companies</span></div>
+      <div class="stat"><b>{locations.length}</b><span>Locations covered</span></div>
+      <div class="stat"><b>{categories.length}</b><span>Job categories</span></div>
+    </div>
+  </section>
+
+  <!-- Jobs -->
+  <section class="container section--tight">
+    <SectionHeading
+      kicker="Fresh openings"
+      title="Latest jobs on Jobsji"
+      subtitle="Hand-reviewed listings with real salary bands — updated as employers publish."
+    >
+      <a class="btn btn-outline" href={withBase('/jobs')}>
+        View all jobs <Icon name="arrow-right" />
+      </a>
+    </SectionHeading>
+    <div class="grid-cards">
+      {homeJobs.map((job) => <JobCard job={job} />)}
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHeading
+        kicker="Browse by skill"
+        title="Top job categories"
+        subtitle="Every category page is a curated landing spot with its own live feed."
+      >
+        <a class="btn btn-outline" href={withBase('/categories')}>
+          All categories <Icon name="arrow-right" />
+        </a>
+      </SectionHeading>
+      <div class="grid-cards">
+        {
+          categories.map((cat) => (
+            <a class="tile" href={withBase(`/categories/${cat.slug}`)}>
+              <div class="tile__head">
+                <span class="tile__icon">
+                  <Icon name={cat.icon} />
+                </span>
+                <span class="tile__count">{categoryCounts.get(cat.slug) ?? 0} jobs</span>
+              </div>
+              <h3>{cat.name}</h3>
+              <p>{cat.description}</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="container section">
+    <SectionHeading
+      kicker="How it works"
+      title="Three steps to your next role"
+      subtitle="No signup, no fees, no spam — search, compare and apply."
+    />
+    <div class="steps">
+      {
+        steps.map((step, index) => (
+          <div class="step">
+            <span class="step__num">{index + 1}</span>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="section-head mt-32">
+      <div>
+        <span class="kicker">Why Jobsji</span>
+        <h2>Built for the way India hunts jobs</h2>
+      </div>
+    </div>
+    <div class="features">
+      {
+        features.map((feature) => (
+          <div class="feature">
+            <span class="feature__icon">
+              <Icon name={feature.icon} />
+            </span>
+            <h3>{feature.title}</h3>
+            <p>{feature.text}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Locations -->
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHeading
+        kicker="Hiring cities"
+        title="Jobs by location"
+        subtitle="From metro hubs to rising tier-2 cities — plus fully remote roles."
+      >
+        <a class="btn btn-outline" href={withBase('/locations')}>
+          All locations <Icon name="arrow-right" />
+        </a>
+      </SectionHeading>
+      <div class="grid-cards">
+        {
+          locations.map((loc) => (
+            <a class="tile" href={withBase(`/locations/${loc.slug}`)}>
+              <div class="tile__head">
+                <span class="tile__icon">
+                  <Icon name={loc.slug === 'remote-india' ? 'globe' : 'map-pin'} />
+                </span>
+                <span class="tile__count">{locationCounts.get(loc.slug) ?? 0} jobs</span>
+              </div>
+              <h3>{loc.name}</h3>
+              <p>{loc.description.split('. ')[0]}.</p>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Employer CTA -->
+  <CTABand
+    kicker="For employers"
+    title="Hiring? Get your role in front of thousands of candidates"
+    text="Publish on Jobsji and reach job seekers across India — listings are reviewed within one business day. Free to start, featured plans available."
+    primaryLabel="Post a job"
+    primaryHref="/employers#post"
+    secondaryLabel="See pricing"
+    secondaryHref="/employers#pricing"
+  />
+</BaseLayout>

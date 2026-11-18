@@ -1,0 +1,23 @@
+{
+  "name": "jobsji",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Jobsji — India job discovery portal (static, SEO-first)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "verify": "node scripts/verify-dist.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.4.0",
+    "astro": "^5.13.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,0 +1,88 @@
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JobCard from '../../components/JobCard.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import CTABand from '../../components/CTABand.astro';
+import { categories } from '../../data/categories';
+import { jobsInCategory } from '../../lib/jobs';
+import { breadcrumbJsonLd } from '../../lib/seo';
+
+export async function getStaticPaths() {
+  return categories.map((category) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const categoryJobs = jobsInCategory(category.slug);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Categories', path: '/categories' },
+    { name: category.name, path: `/categories/${category.slug}` },
+  ]),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${category.name} jobs`,
+    description: category.description,
+  },
+];
+---
+
+<BaseLayout
+  title={`${category.name} Jobs — ${categoryJobs.length} Openings in India`}
+  description={`${category.description} Browse ${categoryJobs.length} live ${category.name} jobs on Jobsji.`}
+  path={`/categories/${category.slug}`}
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Categories', href: '/categories' },
+          { label: category.name },
+        ]}
+      />
+      <h1>{category.name} jobs</h1>
+      <p class="lead">{category.description}</p>
+      <div class="job-hero__badges">
+        <span class="chip chip--brand">{categoryJobs.length} open roles</span>
+        <span class="chip chip--plain">Updated daily</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    {
+      categoryJobs.length > 0 ? (
+        <div class="jobs-list">
+          {categoryJobs.map((job) => (
+            <JobCard job={job} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          title={`No live ${category.name} roles right now`}
+          message="New openings are published constantly — check back soon or browse all jobs."
+          actionLabel="Browse all jobs"
+          actionHref="/jobs"
+        />
+      )
+    }
+  </section>
+
+  <CTABand
+    kicker="Alerts"
+    title={`Get new ${category.name} jobs first`}
+    text="Search this category with filters you care about and bookmark the URL — it always shows the latest live roles."
+    primaryLabel="Search jobs"
+    primaryHref={`/jobs?category=${category.slug}`}
+    secondaryLabel="All categories"
+    secondaryHref="/categories"
+  />
+</BaseLayout>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Jobsji — Find jobs that match your skills">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#312e81"/>
+      <stop offset="0.55" stop-color="#4f46e5"/>
+      <stop offset="1" stop-color="#6366f1"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.85" cy="0.1" r="0.7">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <circle cx="1040" cy="520" r="220" fill="#ffffff" opacity="0.07"/>
+  <circle cx="150" cy="90" r="160" fill="#ffffff" opacity="0.06"/>
+
+  <g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif">
+    <rect x="90" y="170" width="86" height="86" rx="20" fill="#ffffff" opacity="0.16"/>
+    <text x="133" y="232" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle">J</text>
+    <circle cx="163" cy="187" r="9" fill="#fcd34d"/>
+
+    <text x="200" y="238" font-size="64" font-weight="800" fill="#ffffff" letter-spacing="-2">Jobsji</text>
+
+    <text x="90" y="360" font-size="54" font-weight="800" fill="#ffffff" letter-spacing="-1.5">Find jobs that match</text>
+    <text x="90" y="428" font-size="54" font-weight="800" fill="#fcd34d" letter-spacing="-1.5">your skills.</text>
+
+    <text x="90" y="500" font-size="26" fill="#dbe4ff">Salary-first listings · Freshers &amp; experienced · India</text>
+    <text x="90" y="546" font-size="24" fill="#c7d2fe">jobsji.in</text>
+  </g>
+</svg>

@@ -1,0 +1,82 @@
+import Icon from './Icon.astro';
+import { withBase } from '../lib/links';
+import { CONTACT_EMAIL, SITE_NAME, LAUNCH_YEAR } from '../config/site';
+
+const year = Math.max(new Date().getFullYear(), LAUNCH_YEAR);
+
+const columns = [
+  {
+    title: 'Explore',
+    links: [
+      { href: '/jobs', label: 'Latest jobs' },
+      { href: '/jobs?workplace=remote', label: 'Remote jobs' },
+      { href: '/categories', label: 'Job categories' },
+      { href: '/locations', label: 'Locations' },
+    ],
+  },
+  {
+    title: 'Employers',
+    links: [
+      { href: '/employers', label: 'Post a job' },
+      { href: '/employers#pricing', label: 'Pricing' },
+      { href: '/contact', label: 'Contact sales' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { href: '/about', label: 'About us' },
+      { href: '/contact', label: 'Support' },
+      { href: '/privacy', label: 'Privacy policy' },
+      { href: '/terms', label: 'Terms of use' },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href={withBase('/')}>
+          <span class="brand__mark" aria-hidden="true">J</span>
+          <span>Jobsji<span class="brand__dot">.</span></span>
+        </a>
+        <p>
+          {SITE_NAME} is an India-focused job discovery portal — search roles by
+          skill, category, location and salary. Built for freshers and experienced
+          professionals alike.
+        </p>
+        <a class="chip chip--plain" href={`mailto:${CONTACT_EMAIL}`}>
+          <Icon name="mail" /> {CONTACT_EMAIL}
+        </a>
+      </div>
+
+      {
+        columns.map((col) => (
+          <div>
+            <h3>{col.title}</h3>
+            <ul>
+              {col.links.map((link) => (
+                <li>
+                  <a href={withBase(link.href)}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="footer-bottom">
+      <span>
+        © {year} {SITE_NAME}. All rights reserved.
+      </span>
+      <span>
+        {SITE_NAME} never charges job seekers — report any listing that asks for
+        money.
+        <a href={withBase('/rss.xml')}> RSS</a>
+      </span>
+    </div>
+  </div>
+</footer>

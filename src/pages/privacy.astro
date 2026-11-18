@@ -1,0 +1,108 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, SITE_NAME } from '../config/site';
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Privacy policy', path: '/privacy' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Privacy Policy — Jobsji"
+  description={`How ${SITE_NAME} handles your data: we collect nothing beyond the messages you choose to send us, use no tracking cookies, and never sell personal data.`}
+  path="/privacy"
+  jsonLd={jsonLd}
+  noindex={false}
+>
+  <section class="page-head">
+    <div class="container doc">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Privacy policy' }]} />
+      <h1>Privacy policy</h1>
+      <p class="lead">Last updated: 18 January 2026</p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="doc">
+      <p>
+        {SITE_NAME} is designed to be browsed without surrendering personal data. This
+        policy explains what little information is involved when you use this website.
+      </p>
+
+      <h2>1. Information we collect</h2>
+      <ul>
+        <li>
+          <strong>Browsing:</strong> we do not require an account, and we do not run
+          tracking cookies or fingerprinting scripts on this site.
+        </li>
+        <li>
+          <strong>Messages you send:</strong> when you use a “mailto” form (contact,
+          post a job, apply by email), the message is composed and sent by <em>your</em>
+          email client. We receive only what you choose to include.
+        </li>
+        <li>
+          <strong>Server logs:</strong> our hosting provider (GitHub Pages) records
+          standard technical logs such as IP address, user agent and request time for
+          security and abuse prevention.
+        </li>
+      </ul>
+
+      <h2>2. Cookies &amp; analytics</h2>
+      <p>
+        {SITE_NAME} sets no cookies of its own. If privacy-friendly analytics are ever
+        enabled, they will be cookieless, aggregate and disclosed here before they go
+        live.
+      </p>
+
+      <h2>3. How we use information</h2>
+      <ul>
+        <li>To respond to messages you send us.</li>
+        <li>To publish job listings submitted by employers (business content, not personal data).</li>
+        <li>To keep the site secure and prevent spam or abuse.</li>
+      </ul>
+
+      <h2>4. What we never do</h2>
+      <ul>
+        <li>We never sell, rent or trade personal data.</li>
+        <li>We never ask candidates for payment — report any listing that does.</li>
+        <li>We never share your contact details with employers unless you send your application to them yourself.</li>
+      </ul>
+
+      <h2>5. Third parties</h2>
+      <p>
+        The site is hosted on GitHub Pages (GitHub, Inc.). Email is handled by the
+        provider you use to send messages. External job links lead to employer websites
+        with their own privacy policies.
+      </p>
+
+      <h2>6. Your rights</h2>
+      <p>
+        You can ask us to access, correct or delete any personal information you have
+        sent us, and to remove any listing, by emailing{' '}
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. We respond within one
+        business day, in line with India’s Digital Personal Data Protection Act, 2023.
+      </p>
+
+      <h2>7. Children</h2>
+      <p>
+        {SITE_NAME} is a job portal intended for individuals aged 18 and above. We do
+        not knowingly collect data from minors.
+      </p>
+
+      <h2>8. Changes to this policy</h2>
+      <p>
+        Material changes will be posted on this page with an updated “last updated”
+        date. Continued use of the site means acceptance of the revised policy.
+      </p>
+
+      <h2>9. Contact</h2>
+      <p>
+        Questions about privacy: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

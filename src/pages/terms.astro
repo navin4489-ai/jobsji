@@ -1,0 +1,113 @@
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { breadcrumbJsonLd } from '../lib/seo';
+import { CONTACT_EMAIL, SITE_NAME } from '../config/site';
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Terms of use', path: '/terms' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Terms of Use — Jobsji"
+  description={`Terms governing the use of ${SITE_NAME}: free for job seekers, fair-use rules for employers, and the disclaimers that apply to job listings.`}
+  path="/terms"
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container doc">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Terms of use' }]} />
+      <h1>Terms of use</h1>
+      <p class="lead">Last updated: 18 January 2026</p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="doc">
+      <p>
+        By accessing {SITE_NAME} (“the Site”), you agree to these terms. If you do not
+        agree, please discontinue use of the Site.
+      </p>
+
+      <h2>1. What the Site is</h2>
+      <p>
+        {SITE_NAME} is a job discovery portal that aggregates and publishes job
+        listings. We are not an employer, recruitment agency or staffing service, and
+        we are not a party to any agreement between candidates and employers.
+      </p>
+
+      <h2>2. Free for job seekers</h2>
+      <p>
+        {SITE_NAME} never charges candidates to browse, search or apply. If anyone
+        claims to represent {SITE_NAME} and asks you for money, report it immediately to{' '}
+        <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
+
+      <h2>3. Employer submissions</h2>
+      <ul>
+        <li>You confirm that listings are accurate, lawful and yours to publish.</li>
+        <li>
+          You will not post roles that charge candidates, promise guaranteed
+          employment, or discriminate contrary to Indian law.
+        </li>
+        <li>
+          We may reject, edit or remove listings at our discretion, including for
+          spam, misleading pay or duplicate posting.
+        </li>
+      </ul>
+
+      <h2>4. Acceptable use</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Scrape, crawl at abusive rates, or overload the Site.</li>
+        <li>Attempt to gain unauthorised access to any system or data.</li>
+        <li>Use the Site to distribute malware, phishing or spam.</li>
+        <li>Misrepresent your identity when contacting employers through listings.</li>
+      </ul>
+
+      <h2>5. Listing accuracy &amp; no guarantee</h2>
+      <p>
+        Listings are supplied by employers and reviewed editorially, but we do not
+        warrant that every listing is complete, current or genuine. Apply at your own
+        discretion and never pay to apply. Any terms of employment are solely between
+        you and the employer.
+      </p>
+
+      <h2>6. Intellectual property</h2>
+      <p>
+        The Site’s design, logo, text and code belong to {SITE_NAME} or its licensors.
+        Employer-supplied listing content remains the property of the employer. You may
+        share listing links freely for personal job-seeking purposes.
+      </p>
+
+      <h2>7. Third-party links</h2>
+      <p>
+        Listings link to external employer sites and ATS platforms. We are not
+        responsible for their content, availability or privacy practices.
+      </p>
+
+      <h2>8. Limitation of liability</h2>
+      <p>
+        To the maximum extent permitted by law, {SITE_NAME} is not liable for any loss
+        arising from reliance on listings, communications with employers, or
+        interruption of the Site. Nothing in these terms excludes liability that cannot
+        be excluded under Indian law.
+      </p>
+
+      <h2>9. Governing law</h2>
+      <p>
+        These terms are governed by the laws of India, with exclusive jurisdiction in
+        the courts of the city where {SITE_NAME} operates.
+      </p>
+
+      <h2>10. Changes &amp; contact</h2>
+      <p>
+        We may update these terms; the “last updated” date will change accordingly.
+        Questions: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

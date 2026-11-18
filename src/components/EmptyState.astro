@@ -1,0 +1,25 @@
+import Icon from './Icon.astro';
+import { withBase } from '../lib/links';
+
+interface Props {
+  title: string;
+  message: string;
+  actionLabel?: string;
+  actionHref?: string;
+}
+
+const { title, message, actionLabel, actionHref } = Astro.props;
+---
+
+<div class="empty" data-empty-state>
+  <Icon name="search" />
+  <h3>{title}</h3>
+  <p>{message}</p>
+  {
+    actionLabel && actionHref && (
+      <a class="btn btn-primary" href={withBase(actionHref)}>
+        {actionLabel}
+      </a>
+    )
+  }
+</div>

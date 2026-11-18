@@ -1,0 +1,59 @@
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Icon from '../../components/Icon.astro';
+import { locations } from '../../data/locations';
+import { activeJobs } from '../../lib/jobs';
+import { breadcrumbJsonLd } from '../../lib/seo';
+import { withBase } from '../../lib/links';
+
+const allJobs = activeJobs();
+const counts = new Map(
+  locations.map((loc) => [loc.slug, allJobs.filter((job) => job.locationSlug === loc.slug).length]),
+);
+
+const jsonLd = [
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Locations', path: '/locations' },
+  ]),
+];
+---
+
+<BaseLayout
+  title="Jobs by Location — Bengaluru, Mumbai, Delhi NCR, Remote India & more"
+  description="Find jobs in Indian cities: Bengaluru, Mumbai, Delhi NCR, Hyderabad, Pune, Chennai, Ahmedabad, Kolkata, Jaipur and remote roles across India."
+  path="/locations"
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Locations' }]} />
+      <h1>Jobs by location</h1>
+      <p class="lead">
+        India’s metros, rising tier-2 hubs and fully remote roles — pick a location
+        to see every live opening there.
+      </p>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="grid-cards">
+      {
+        locations.map((loc) => (
+          <a class="tile" href={withBase(`/locations/${loc.slug}`)}>
+            <div class="tile__head">
+              <span class="tile__icon">
+                <Icon name={loc.slug === 'remote-india' ? 'globe' : 'map-pin'} />
+              </span>
+              <span class="tile__count">{counts.get(loc.slug) ?? 0} jobs</span>
+            </div>
+            <h3>{loc.name}</h3>
+            <p>
+              <strong>{loc.state}</strong> — {loc.description.split('. ')[0]}.
+            </p>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,311 @@
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JobCard from '../../components/JobCard.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import Icon from '../../components/Icon.astro';
+import Monogram from '../../components/Monogram.astro';
+import CTABand from '../../components/CTABand.astro';
+import { jobs } from '../../data/jobs';
+import { companyBySlug } from '../../data/companies';
+import { locationBySlug } from '../../data/locations';
+import { categoryBySlug } from '../../data/categories';
+import { relatedJobs } from '../../lib/jobs';
+import { breadcrumbJsonLd, jobPostingJsonLd } from '../../lib/seo';
+import {
+  EMPLOYMENT_TYPE_LABEL,
+  WORKPLACE_LABEL,
+  formatDate,
+  formatExperience,
+  formatSalary,
+  timeAgo,
+} from '../../lib/format';
+import { withBase } from '../../lib/links';
+import { APPLY_EMAIL } from '../../config/site';
+
+export async function getStaticPaths() {
+  return jobs.map((job) => ({ params: { slug: job.slug }, props: { job } }));
+}
+
+const { job } = Astro.props;
+
+const company = companyBySlug.get(job.companySlug);
+const location = locationBySlug.get(job.locationSlug);
+const category = categoryBySlug.get(job.categorySlug);
+
+if (!company || !location || !category) {
+  throw new Error(
+    `Job "${job.slug}" references unknown company/location/category — fix src/data files.`,
+  );
+}
+
+const today = new Date().toISOString().slice(0, 10);
+const expired = Boolean(job.validThrough && job.validThrough < today);
+const salary = formatSalary(job.salaryMin, job.salaryMax, job.salaryPeriod);
+const experience = formatExperience(job.experienceMin, job.experienceMax);
+const related = relatedJobs(job, 3);
+
+const mailSubject = `Application for ${job.title} — ${company.name}`;
+const mailBody = [
+  `Hello ${company.name} hiring team,`,
+  '',
+  `I would like to apply for the ${job.title} role (${job.city}) posted on Jobsji.`,
+  '',
+  'Name:',
+  'Phone:',
+  'Experience:',
+  'Resume / LinkedIn:',
+  '',
+  'Thanks,',
+].join('\n');
+
+const primaryHref = job.applyUrl
+  ?? `mailto:${job.applyEmail ?? APPLY_EMAIL}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`;
+const isExternal = Boolean(job.applyUrl);
+
+const jsonLd = [
+  jobPostingJsonLd(job, company, location),
+  breadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Jobs', path: '/jobs' },
+    { name: category.name, path: `/categories/${category.slug}` },
+    { name: job.title, path: `/jobs/${job.slug}` },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`${job.title} at ${company.name} — ${job.city} | Jobsji`}
+  description={job.summary}
+  path={`/jobs/${job.slug}`}
+  jsonLd={jsonLd}
+>
+  <section class="page-head">
+    <div class="container">
+      <Breadcrumb
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Jobs', href: '/jobs' },
+          { label: category.name, href: `/categories/${category.slug}` },
+          { label: job.title },
+        ]}
+      />
+
+      <div class="job-hero__top mt-24">
+        <Monogram name={company.name} color={company.color} size="lg" />
+        <div style="min-width:0">
+          <h1 class="job-hero__title">{job.title}</h1>
+          <p class="lead mb-0">
+            {company.name} · {job.city} · {WORKPLACE_LABEL[job.workplace]}
+          </p>
+          <div class="job-hero__badges">
+            {job.featured && <span class="chip chip--amber">★ Featured</span>}
+            {job.urgent && <span class="chip chip--red">Urgent</span>}
+            <span class="chip chip--brand">{category.name}</span>
+            <span class="chip chip--plain">{EMPLOYMENT_TYPE_LABEL[job.employmentType]}</span>
+            {
+              expired ? (
+                <span class="chip chip--red">Expired</span>
+              ) : (
+                <span class="chip chip--green">Actively hiring</span>
+              )
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="share-row mt-24">
+        <button class="btn btn-outline btn-sm" type="button" data-copy-link>
+          <Icon name="link" /> <span data-copy-label>Copy link</span>
+        </button>
+        <span class="hint">Posted {timeAgo(job.postedAt)} · {job.openings} opening{
+          job.openings > 1 ? 's' : ''
+        }</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section--tight">
+    <div class="detail-meta">
+      <div class="meta-tile">
+        <span class="label">Salary</span>
+        <span class="value"><Icon name="rupee" /> {salary}</span>
+      </div>
+      <div class="meta-tile">
+        <span class="label">Experience</span>
+        <span class="value"><Icon name="briefcase" /> {experience}</span>
+      </div>
+      <div class="meta-tile">
+        <span class="label">Location</span>
+        <span class="value"><Icon name="map-pin" /> {job.city}</span>
+      </div>
+      <div class="meta-tile">
+        <span class="label">Work mode</span>
+        <span class="value"><Icon name="globe" /> {WORKPLACE_LABEL[job.workplace]}</span>
+      </div>
+      <div class="meta-tile">
+        <span class="label">Job type</span>
+        <span class="value"><Icon name="calendar" /> {EMPLOYMENT_TYPE_LABEL[job.employmentType]}</span>
+      </div>
+      <div class="meta-tile">
+        <span class="label">Posted</span>
+        <span class="value"><Icon name="clock" /> {formatDate(job.postedAt)}</span>
+      </div>
+    </div>
+
+    <div class="job-detail mt-24">
+      <div>
+        <article class="panel">
+          <h2>Job description</h2>
+          <div class="prose">
+            <p>{job.summary}</p>
+            <p>{job.description}</p>
+          </div>
+        </article>
+
+        <article class="panel">
+          <h2>Key responsibilities</h2>
+          <ul class="prose">
+            {job.responsibilities.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>Requirements</h2>
+          <ul class="prose">
+            {job.requirements.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>Benefits &amp; perks</h2>
+          <ul class="prose">
+            {job.benefits.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>Skills &amp; tools</h2>
+          <div class="job-card__skills">
+            {job.skills.map((skill) => <span class="chip">{skill}</span>)}
+          </div>
+        </article>
+      </div>
+
+      <aside class="detail-aside">
+        <div class="panel apply-card">
+          <h2>Apply for this role</h2>
+          <p class="hint">
+            Free for candidates — Jobsji never charges to apply. Applications go
+            directly to {company.name}.
+          </p>
+          {
+            isExternal ? (
+              <a
+                class="btn btn-primary btn-lg btn-block"
+                href={primaryHref}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Apply now <Icon name="external-link" />
+              </a>
+            ) : (
+              <a class="btn btn-primary btn-lg btn-block" href={primaryHref}>
+                Apply by email <Icon name="send" />
+              </a>
+            )
+          }
+          {
+            expired && (
+              <p class="hint" style="margin-top:12px;color:var(--red-700)">
+                This posting has expired — check similar roles below.
+              </p>
+            )
+          }
+        </div>
+
+        <div class="panel">
+          <h2>About {company.name}</h2>
+          <div class="job-card__company" style="margin-bottom:12px">
+            <Monogram name={company.name} color={company.color} />
+            <div>
+              <strong>{company.name}</strong><br />
+              <span class="hint">{company.tagline}</span>
+            </div>
+          </div>
+          <p class="hint">{company.about}</p>
+          <a class="btn btn-outline btn-sm" href={company.website} target="_blank" rel="noopener noreferrer">
+            Company website <Icon name="external-link" />
+          </a>
+        </div>
+
+        <div class="panel">
+          <h2>Job facts</h2>
+          <ul class="fact-list">
+            <li><span class="k">Category</span><span class="v">{category.name}</span></li>
+            <li><span class="k">Openings</span><span class="v">{job.openings}</span></li>
+            <li><span class="k">Posted on</span><span class="v">{formatDate(job.postedAt)}</span></li>
+            {
+              job.validThrough && (
+                <li>
+                  <span class="k">Apply by</span>
+                  <span class="v">{formatDate(job.validThrough)}</span>
+                </li>
+              )
+            }
+            <li><span class="k">Apply via</span><span class="v">{isExternal ? 'Employer ATS' : 'Email'}</span></li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="container section--tight">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Keep exploring</span>
+            <h2>Similar jobs in {category.name}</h2>
+          </div>
+          <a class="btn btn-outline" href={withBase(`/categories/${category.slug}`)}>
+            All {category.name} jobs <Icon name="arrow-right" />
+          </a>
+        </div>
+        <div class="grid-cards">
+          {related.map((item) => (
+            <JobCard job={item} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <CTABand
+    kicker="Employers"
+    title={`Hiring for a role like ${job.title}?`}
+    text="Publish on Jobsji and reach candidates across India. Listings are reviewed within one business day."
+    primaryLabel="Post a job"
+    primaryHref="/employers#post"
+    secondaryLabel="See pricing"
+    secondaryHref="/employers#pricing"
+  />
+</BaseLayout>
+
+<script>
+  const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-link]');
+  const copyLabel = document.querySelector<HTMLElement>('[data-copy-label]');
+
+  copyBtn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      if (copyLabel) {
+        const original = copyLabel.textContent ?? 'Copy link';
+        copyLabel.textContent = 'Copied!';
+        window.setTimeout(() => {
+          copyLabel.textContent = original;
+        }, 2000);
+      }
+    } catch {
+      if (copyLabel) copyLabel.textContent = 'Copy failed';
+    }
+  });
+</script>
