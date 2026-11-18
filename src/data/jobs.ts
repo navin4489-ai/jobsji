@@ -21,8 +21,8 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['React', 'TypeScript', 'Next.js', 'Redux', 'Testing Library', 'REST APIs'],
     openings: 3,
-    postedAt: '2026-01-12',
-    validThrough: '2026-02-28',
+    postedAt: '2026-11-12',
+    validThrough: '2026-12-29',
     summary:
       'Nexora Technologies is hiring a Senior React Developer to lead the frontend of its banking analytics console, used daily by risk teams at leading Indian banks.',
     description:
@@ -65,7 +65,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Node.js', 'Express', 'PostgreSQL', 'Redis', 'Docker', 'REST APIs'],
     openings: 4,
-    postedAt: '2026-01-06',
+    postedAt: '2026-11-06',
     summary:
       'RetailLoop Commerce is hiring a Backend Engineer (Node.js) to scale the order platform that powers 10,000+ D2C brands across India.',
     description:
@@ -107,7 +107,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'month',
     skills: ['SQL', 'Excel', 'Power BI', 'Python', 'Data Visualisation', 'Statistics'],
     openings: 2,
-    postedAt: '2026-01-14',
+    postedAt: '2026-11-14',
     summary:
       'Analytiq Labs is inviting a Data Analyst Intern to work alongside its BI team on demand-forecasting dashboards for consumer brands.',
     description:
@@ -149,7 +149,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'month',
     skills: ['Python', 'pandas', 'FastAPI', 'Git', 'SQL', 'Unit Testing'],
     openings: 3,
-    postedAt: '2026-01-15',
+    postedAt: '2026-11-15',
     summary:
       'Vayu Mobility is opening a Python Intern role on the telematics team that keeps thousands of electric two-wheelers on the road.',
     description:
@@ -191,7 +191,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Figma', 'Prototyping', 'Design Systems', 'User Research', 'Wireframing', 'Accessibility'],
     openings: 1,
-    postedAt: '2026-01-09',
+    postedAt: '2026-11-09',
     summary:
       'Nexora Technologies is hiring a Product Designer to shape workflows in its banking and retail SaaS products for enterprise users across India.',
     description:
@@ -234,8 +234,8 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Lead Qualification', 'CRM', 'Telecalling', 'Credit Products', 'Objection Handling', 'MS Excel'],
     openings: 6,
-    postedAt: '2026-01-15',
-    validThrough: '2026-02-15',
+    postedAt: '2026-11-15',
+    validThrough: '2026-12-16',
     summary:
       'Finveda Capital is hiring an Inside Sales Executive to convert pre-qualified leads into approved loans for salaried customers across India.',
     description:
@@ -278,7 +278,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Google Ads', 'Meta Ads', 'GA4', 'Conversion Rate Optimisation', 'Media Planning', 'Excel'],
     openings: 1,
-    postedAt: '2026-01-11',
+    postedAt: '2026-11-11',
     summary:
       'Brandwave Media is hiring a Performance Marketing Manager to run paid acquisition for D2C and fintech clients spending over 5 crore a year.',
     description:
@@ -321,7 +321,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Financial Modelling', 'Excel', 'SQL', 'Risk Analysis', 'Power BI', 'MIS Reporting'],
     openings: 2,
-    postedAt: '2026-01-05',
+    postedAt: '2026-11-05',
     summary:
       'Finveda Capital is hiring a Financial Analyst to model portfolio performance and pricing for its retail lending book.',
     description:
@@ -364,7 +364,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Patient Communication', 'Appointment Scheduling', 'CRM', 'Empathy', 'Hindi', 'Marathi'],
     openings: 3,
-    postedAt: '2025-12-30',
+    postedAt: '2026-10-30',
     summary:
       'HealthPlus Clinics is hiring a part-time Patient Support Executive to handle appointment calls and follow-ups for its Mumbai centres.',
     description:
@@ -405,7 +405,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Inventory Management', 'WMS', 'Excel', 'Process Improvement', 'Shift Management', 'Vendor Coordination'],
     openings: 8,
-    postedAt: '2026-01-16',
+    postedAt: '2026-11-16',
     summary:
       'UrbanBasket Grocers is hiring a Warehouse Operations Executive to run inbound and picking shifts at its dark stores across Delhi NCR.',
     description:
@@ -448,7 +448,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['JavaScript', 'React', 'Node.js', 'Git', 'SQL', 'Data Structures'],
     openings: 5,
-    postedAt: '2026-01-10',
+    postedAt: '2026-11-10',
     summary:
       'EduSpark Learning is hiring fresh Software Engineers to build learning tools used by students in 400+ Indian cities.',
     description:
@@ -490,7 +490,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'month',
     skills: ['SEO', 'Content Writing', 'Google Analytics', 'Social Media', 'Canva', 'Keyword Research'],
     openings: 2,
-    postedAt: '2026-01-13',
+    postedAt: '2026-11-13',
     summary:
       'EduSpark Learning is onboarding Digital Marketing Interns to grow organic traffic for its tech upskilling programmes.',
     description:
@@ -532,8 +532,8 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['AWS', 'Kubernetes', 'Terraform', 'CI/CD', 'Prometheus', 'Linux'],
     openings: 2,
-    postedAt: '2026-01-08',
-    validThrough: '2026-03-15',
+    postedAt: '2026-11-08',
+    validThrough: '2027-01-13',
     summary:
       'CloudNest Systems is hiring a DevOps Engineer to run Kubernetes platforms for high-growth internet clients from its Hyderabad campus.',
     description:
@@ -575,7 +575,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Spark', 'Airflow', 'dbt', 'Snowflake', 'Python', 'Data Modelling'],
     openings: 1,
-    postedAt: '2026-01-07',
+    postedAt: '2026-11-07',
     summary:
       'Analytiq Labs is hiring a Lead Data Engineer to own the forecasting pipelines that serve consumer brands across India.',
     description:
@@ -618,7 +618,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Linux', 'Networking', 'Ticketing Tools', 'DNS', 'Troubleshooting', 'English Communication'],
     openings: 4,
-    postedAt: '2026-01-03',
+    postedAt: '2026-11-03',
     summary:
       'CloudNest Systems is hiring a Technical Support Engineer to resolve cloud infrastructure issues for managed-service clients around the clock.',
     description:
@@ -660,7 +660,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Lead Generation', 'Cold Calling', 'CRM', 'Client Acquisition', 'Negotiation', 'MS Excel'],
     openings: 3,
-    postedAt: '2026-01-02',
+    postedAt: '2026-11-02',
     summary:
       'SkillMint HR is hiring a part-time Business Development Executive to open conversations with product companies hiring across Pune and Bengaluru.',
     description:
@@ -701,7 +701,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Process Management', 'Vendor Coordination', 'Excel', 'Patient Flow', 'Inventory', 'MIS Reporting'],
     openings: 2,
-    postedAt: '2025-12-28',
+    postedAt: '2026-10-28',
     summary:
       'HealthPlus Clinics is hiring a Clinic Operations Executive to keep patient flow, supplies and vendor SLAs running across its Pune centres.',
     description:
@@ -743,8 +743,8 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Voice Support', 'English Communication', 'Ticketing', 'Empathy', 'Night Shift', 'Chat Support'],
     openings: 6,
-    postedAt: '2026-01-16',
-    validThrough: '2026-02-20',
+    postedAt: '2026-11-16',
+    validThrough: '2026-12-21',
     summary:
       'ServX India is hiring Customer Support Executives for the night shift to answer voice and chat queries for global SaaS clients.',
     description:
@@ -786,7 +786,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Python', 'MQTT', 'IoT Protocols', 'InfluxDB', 'AWS', 'Docker'],
     openings: 2,
-    postedAt: '2026-01-09',
+    postedAt: '2026-11-09',
     summary:
       'Vayu Mobility is hiring a Telematics Software Engineer to build the data platform behind its electric two-wheeler fleet.',
     description:
@@ -828,7 +828,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Field Sales', 'Merchant Onboarding', 'Negotiation', 'Regional Language', 'CRM', 'Target Achievement'],
     openings: 5,
-    postedAt: '2026-01-17',
+    postedAt: '2026-11-17',
     summary:
       'RetailLoop Commerce is hiring a Field Sales Executive to onboard textile and D2C sellers in Ahmedabad onto its marketplace.',
     description:
@@ -870,7 +870,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['SQL', 'Power BI', 'Excel', 'Statistics', 'Dashboarding', 'Python'],
     openings: 3,
-    postedAt: '2026-01-04',
+    postedAt: '2026-11-04',
     summary:
       'Analytiq Labs is hiring a Junior Data Analyst to build demand and sales dashboards for D2C brands in Gujarat.',
     description:
@@ -912,7 +912,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Fleet Operations', 'Route Planning', 'Vendor Coordination', 'Excel', 'Transport Compliance', 'MIS Reporting'],
     openings: 4,
-    postedAt: '2026-01-01',
+    postedAt: '2026-11-01',
     summary:
       'LogiTrail Logistics is hiring a Transport Operations Executive to plan full-truckload routes for manufacturing clients out of Kolkata.',
     description:
@@ -954,7 +954,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Accounting', 'Tally Prime', 'GST Filing', 'Reconciliation', 'Excel', 'Accounts Payable'],
     openings: 1,
-    postedAt: '2025-12-29',
+    postedAt: '2026-10-29',
     summary:
       'UrbanBasket Grocers is hiring a Finance and Accounts Executive to run day-to-day accounting for its Jaipur dark-store network.',
     description:
@@ -996,8 +996,8 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['React', 'Node.js', 'TypeScript', 'PostgreSQL', 'Docker', 'AWS'],
     openings: 2,
-    postedAt: '2026-01-12',
-    validThrough: '2026-03-31',
+    postedAt: '2026-11-12',
+    validThrough: '2027-01-29',
     summary:
       'Nexora Technologies is hiring a Full Stack Developer to work remotely on the reporting modules of its enterprise SaaS platform.',
     description:
@@ -1039,7 +1039,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['Figma', 'UX Research', 'Interaction Design', 'Prototyping', 'Design Systems', 'User Testing'],
     openings: 1,
-    postedAt: '2026-01-06',
+    postedAt: '2026-11-06',
     summary:
       'PixelForge Studio is hiring a Senior UX Designer on a 12-month contract to lead research and interaction design for a fintech client.',
     description:
@@ -1080,7 +1080,7 @@ export const jobs: Job[] = [
     salaryPeriod: 'year',
     skills: ['SEO', 'Keyword Research', 'Technical SEO', 'Content Strategy', 'Google Search Console', 'Link Building'],
     openings: 2,
-    postedAt: '2026-01-03',
+    postedAt: '2026-11-03',
     summary:
       'Brandwave Media is hiring an SEO Specialist on a nine-month contract to grow organic traffic for its D2C and fintech clients.',
     description:

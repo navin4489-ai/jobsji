@@ -1,6 +1,6 @@
 # Jobsji — Technical & Delivery Plan
 
-Companion to `docs/BRD.md`. Version 1.0 — 2026-01-18.
+Companion to `docs/BRD.md`. Version 1.0 — 2026-11-18.
 
 ---
 

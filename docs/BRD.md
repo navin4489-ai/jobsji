@@ -6,7 +6,7 @@
 | Planned domain | `jobsji.in` (registered; DNS not yet configured) |
 | Launch domain (free) | `https://navin4489-ai.github.io/jobsji/` (GitHub Pages) |
 | Document version | 1.0 |
-| Date | 2026-01-18 |
+| Date | 2026-11-18 |
 | Status | Approved for build |
 | Owner | Product / Founder |
 
