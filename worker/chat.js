@@ -77,7 +77,10 @@ export default {
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin, env);
 
-    if (request.method === 'OPTIONS') return json({}, 204, cors);
+    if (request.method === 'OPTIONS') {
+      const { __ok, ...headers } = cors;
+      return new Response(null, { status: 204, headers });
+    }
     if (request.method !== 'POST') return json({ error: 'method' }, 405, cors);
     if (!cors.__ok) return json({ error: 'origin' }, 403, cors);
     if (!env.GEMINI_API_KEY) return json({ error: 'not_configured' }, 503, cors);
@@ -110,31 +113,38 @@ export default {
 
     contents.push({ role: 'user', parts: [{ text: `[lang=${lang}]\n${message}` }] });
 
-    const models = (env.GEMINI_MODELS || 'gemini-3.5-flash,gemini-flash-lite-latest,gemini-3.8-flash')
+    const models = (env.GEMINI_MODELS || 'gemini-flash-lite-latest,gemini-3.5-flash-lite')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);
     const requestBody = JSON.stringify({
       systemInstruction: { parts: [{ text: `${SITE_FACTS}\n\nJOB LIST (slug | title | city | country | salary):\n${jobList}` }] },
       contents,
-      generationConfig: { temperature: 0.5, maxOutputTokens: 600 },
+      // Minimal "thinking" keeps replies fast enough for a live chat.
+      generationConfig: { temperature: 0.5, maxOutputTokens: 600, thinkingConfig: { thinkingLevel: 'minimal' } },
     });
 
-    // Try each model in turn — busy (503), retired (404) or quota-limited (429)
-    // models are skipped so one overloaded model never breaks the bot.
+    // Try each model in turn — busy (503), retired (404), quota-limited (429)
+    // or slow (>11s) models are skipped so one bad model never breaks the bot.
     let res;
     let lastStatus = 0;
     for (const model of models) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 11000);
       try {
         res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_API_KEY },
           body: requestBody,
+          signal: controller.signal,
         });
       } catch {
         res = undefined;
+        lastStatus = 504;
         continue;
+      } finally {
+        clearTimeout(timer);
       }
       if (res.ok) break;
       lastStatus = res.status;

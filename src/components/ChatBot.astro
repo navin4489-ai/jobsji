@@ -351,7 +351,7 @@ const chatApi = import.meta.env.PUBLIC_CHAT_API ?? '';
       addMsg('me', esc(text));
       const bubble = addMsg('bot', '<span class="chatbot__typing"><i></i><i></i><i></i></span>');
       const controller = new AbortController();
-      const timer = window.setTimeout(() => controller.abort(), 15000);
+      const timer = window.setTimeout(() => controller.abort(), 25000);
       try {
         const res = await fetch(api, {
           method: 'POST',
