@@ -334,6 +334,7 @@ const chatApi = import.meta.env.PUBLIC_CHAT_API ?? '';
         })
         .replace(/\*\*(.+?)\*\*/g, '$1')
         .replace(/[ \t]+\n/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
         .trim();
       const cards = slugs.length
         ? `<div class="chatbot__jobs">${slugs
