@@ -72,8 +72,9 @@ const plausibleDomain = import.meta.env.PUBLIC_PLAUSIBLE_DOMAIN;
     <!-- Restore the saved language before first paint (avoids an EN flash). -->
     <script is:inline>
       try {
-        if (localStorage.getItem('jobsji-lang') === 'hi') {
-          document.documentElement.lang = 'hi';
+        var savedLang = localStorage.getItem('jobsji-lang');
+        if (savedLang === 'hi' || savedLang === 'uz') {
+          document.documentElement.lang = savedLang;
         }
       } catch (e) {
         /* storage blocked — English default is fine */

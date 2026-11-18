@@ -7,11 +7,12 @@
  * dictionary gracefully fall back to English.
  */
 
-export type Lang = 'en' | 'hi';
+export type Lang = 'en' | 'hi' | 'uz';
 
 export const LANGS: { id: Lang; label: string; long: string }[] = [
   { id: 'en', label: 'EN', long: 'English' },
   { id: 'hi', label: 'हि', long: 'हिन्दी' },
+  { id: 'uz', label: 'UZ', long: 'O‘zbekcha' },
 ];
 
 type Dict = Record<string, { en: string; hi?: string }>;
@@ -176,26 +177,166 @@ export const strings: Dict = {
   'cta.start': { en: 'Get Started Free', hi: 'मुफ़्त शुरू करें' },
 };
 
+/** Uzbek (Latin script). Missing keys fall back to English. */
+const uz: Record<string, string> = {
+  'nav.home': 'Bosh sahifa',
+  'nav.jobs': 'Ishlar',
+  'nav.categories': 'Toifalar',
+  'nav.locations': 'Joylashuvlar',
+  'nav.employers': 'Ish beruvchilar',
+  'nav.about': 'Biz haqimizda',
+  'nav.forEmployers': 'Ish beruvchilar uchun',
+  'nav.postJob': 'Vakansiya joylash',
+
+  'hero.kicker': 'Hindiston va xorijdagi tasdiqlangan ishlar',
+  'hero.title': 'Hindiston, Dubay, O‘zbekiston va boshqa davlatlarda tasdiqlangan ish toping',
+  'hero.subtitle':
+    '100% tasdiqlangan ish beruvchilar, HR bilan to‘g‘ridan-to‘g‘ri aloqa va viza yordami — yashirin agent to‘lovlarisiz.',
+  'hero.searchPlaceholder': 'Lavozim yoki ko‘nikma…',
+  'hero.locationLabel': 'Joylashuv',
+  'hero.locationAll': 'Butun Hindiston',
+  'hero.searchBtn': 'Ish qidirish',
+  'hero.popular': 'Mashhur:',
+
+  'chip.all': 'Barcha ishlar',
+  'chip.it': 'IT va dasturlash',
+  'chip.construction': 'Qurilish va muhandislik',
+  'chip.hospitality': 'Mehmonxona va xizmat',
+  'chip.healthcare': 'Tibbiyot va hamshiralik',
+  'chip.drivers': 'Haydovchilar va logistika',
+  'chip.trades': 'Malakali hunarlar',
+  'chip.wfh': 'Uydan ishlash',
+
+  'trust.jobs': '15 000+ faol vakansiya',
+  'trust.jobsSub': 'Har kuni yangilanadi',
+  'trust.verified': '100% tasdiqlangan ish beruvchilar',
+  'trust.verifiedSub': 'Litsenziya tekshirilgan',
+  'trust.visa': 'Viza va ko‘chib o‘tish yordami',
+  'trust.visaSub': 'Aviachipta, ruxsatnoma va hujjatlar',
+  'trust.hr': 'HR bilan to‘g‘ridan-to‘g‘ri aloqa',
+  'trust.hrSub': 'Menejerga WhatsApp orqali yozing',
+
+  'section.featuredKicker': 'Tanlangan vakansiyalar',
+  'section.featuredTitle': 'Haftaning eng yaxshi ishlari',
+  'section.featuredSub':
+    'Hindistonda 3 ta va viza homiyligi bilan 3 ta xalqaro vakansiya — har bir ish beruvchi tasdiqlangan.',
+  'section.viewAll': 'Barcha ishlarni ko‘rish',
+  'section.howKicker': 'Oddiy va shaffof',
+  'section.howTitle': 'Bu qanday ishlaydi',
+  'section.pricingKicker': 'Tarifni tanlang',
+  'section.pricingTitle': 'Oddiy tariflar, katta imkoniyatlar',
+  'section.pricingSub':
+    'HR kontaktlari, ustuvor arizalar va xalqaro ish xabarnomalarini oching.',
+  'section.testiKicker': 'Haqiqiy odamlar, haqiqiy takliflar',
+  'section.testiTitle': 'Muvaffaqiyatga erishgan nomzodlar',
+
+  'job.viewContact': 'HR kontaktini ko‘rish va ariza berish',
+  'job.locked':
+    'HR kontakti, WhatsApp raqami va tezkor arizani ochish uchun obuna bo‘ling.',
+  'job.unlocked': 'HR kontakti ochildi — ularga to‘g‘ridan-to‘g‘ri yozing. Omad!',
+  'job.applyNow': 'Hozir ariza berish',
+  'job.whatsappHr': 'HR WhatsApp raqamini ochish',
+  'job.verifiedEmployer': 'Tasdiqlangan ish beruvchi',
+  'job.visaSponsored': 'Viza homiyligi',
+  'job.immediate': 'Darhol ishga kirish',
+  'job.openings': 'o‘rin',
+  'job.posted': 'Joylangan',
+  'job.aboutRole': 'Lavozim haqida',
+  'job.responsibilities': 'Majburiyatlar',
+  'job.requirements': 'Talablar',
+  'job.benefits': 'Imtiyozlar',
+  'job.package': 'Maosh va paket tafsilotlari',
+  'job.label.accommodation': 'Turar joy',
+  'job.label.food': 'Ovqat',
+  'job.label.visa': 'Viza',
+  'job.label.transport': 'Transport',
+  'job.label.hours': 'Ish soatlari',
+  'job.label.contract': 'Shartnoma',
+  'job.similar': 'O‘xshash ishlar',
+
+  'search.title': 'Keyingi ishingizni toping',
+  'search.filters': 'Filtrlar',
+  'search.region': 'Hudud',
+  'search.india': 'Hindiston',
+  'search.international': 'Xalqaro',
+  'search.perks': 'Viza va imtiyozlar',
+  'search.salary': 'Maosh oralig‘i',
+  'search.experience': 'Tajriba',
+  'search.fresher': 'Tajribasiz',
+  'search.exp13': '1 – 3 yil',
+  'search.exp35': '3 – 5 yil',
+  'search.exp5p': '5+ yil',
+  'search.jobType': 'Ish turi',
+  'search.results': 'ta ish topildi',
+  'search.clear': 'Tozalash',
+  'search.apply': 'Qo‘llash',
+
+  'plan.subscribe': 'Hozir obuna bo‘lish',
+  'plan.mostPopular': 'Eng mashhur',
+  'plan.perMonth': '/oy',
+  'plan.noHiddenFees': 'Yashirin agent to‘lovlari yo‘q. To‘g‘ridan-to‘g‘ri kompaniya ishlari.',
+
+  'checkout.title': 'Obunani yakunlang',
+  'checkout.payWith': 'To‘lov usuli',
+  'checkout.upi': 'UPI',
+  'checkout.card': 'Karta',
+  'checkout.netbanking': 'Internet-banking',
+  'checkout.summary': 'Buyurtma xulosasi',
+  'checkout.pay': 'Xavfsiz to‘lash',
+  'checkout.processing': 'Ishlanmoqda…',
+  'checkout.success': 'To‘lov muvaffaqiyatli! Tarifingiz faol. Ariza berishni boshlang — omad!',
+  'checkout.secureNote': '256-bit shifrlash · Razorpay darajasidagi xavfsizlik',
+
+  'dash.title': 'Mening kabinetim',
+  'dash.overview': 'Umumiy ko‘rinish',
+  'dash.profile': 'Profil',
+  'dash.resume': 'Rezyume',
+  'dash.applications': 'Arizalar',
+  'dash.saved': 'Saqlangan ishlar',
+  'dash.alerts': 'Xabarnomalar',
+  'dash.saveProfile': 'Profilni saqlash',
+  'dash.downloadResume': 'Rezyumeni yuklab olish (PDF)',
+  'stage.applied': 'Ariza yuborildi',
+  'stage.viewed': 'HR ko‘rdi',
+  'stage.interview': 'Suhbat belgilandi',
+  'stage.selected': 'Tanlandi',
+
+  'emp.title': 'Tasdiqlangan mutaxassislarni yollang — Hindiston va xorij',
+  'emp.postCta': 'Bepul vakansiya joylash',
+  'emp.verifyLicense': 'Biznes litsenziyasini tasdiqlash',
+
+  'footer.tagline': 'Sizning karyerangiz, endi global',
+  'footer.rights': 'Barcha huquqlar himoyalangan.',
+
+  'cta.explore': 'Ishlarni ko‘rish',
+  'cta.start': 'Bepul boshlash',
+};
+
+const translate = (key: string | undefined, lang: Lang): string | undefined => {
+  const entry = key ? strings[key] : undefined;
+  if (!entry || !key) return undefined;
+  if (lang === 'hi') return entry.hi ?? entry.en;
+  if (lang === 'uz') return uz[key] ?? entry.en;
+  return entry.en;
+};
+
+const isLang = (value: string | null | undefined): value is Lang =>
+  value === 'en' || value === 'hi' || value === 'uz';
+
 /** Apply a language to the document: swaps text and updates <html lang>. */
 export function applyLang(lang: Lang): void {
   document.documentElement.lang = lang;
   document.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
-    const key = el.dataset.i18n;
-    const entry = key ? strings[key] : undefined;
-    if (!entry) return;
-    el.textContent = lang === 'hi' && entry.hi ? entry.hi : entry.en;
+    const text = translate(el.dataset.i18n, lang);
+    if (text !== undefined) el.textContent = text;
   });
   document.querySelectorAll<HTMLInputElement>('[data-i18n-placeholder]').forEach((el) => {
-    const key = el.dataset.i18nPlaceholder;
-    const entry = key ? strings[key] : undefined;
-    if (!entry) return;
-    el.placeholder = lang === 'hi' && entry.hi ? entry.hi : entry.en;
+    const text = translate(el.dataset.i18nPlaceholder, lang);
+    if (text !== undefined) el.placeholder = text;
   });
   document.querySelectorAll<HTMLElement>('[data-i18n-aria]').forEach((el) => {
-    const key = el.dataset.i18nAria;
-    const entry = key ? strings[key] : undefined;
-    if (!entry) return;
-    el.setAttribute('aria-label', lang === 'hi' && entry.hi ? entry.hi : entry.en);
+    const text = translate(el.dataset.i18nAria, lang);
+    if (text !== undefined) el.setAttribute('aria-label', text);
   });
   document.querySelectorAll<HTMLButtonElement>('[data-lang-btn]').forEach((btn) => {
     btn.setAttribute('aria-pressed', String(btn.dataset.langBtn === lang));
@@ -215,12 +356,12 @@ export function initI18n(): void {
   } catch {
     saved = null;
   }
-  const initial: Lang = saved === 'hi' ? 'hi' : 'en';
-  applyLang(initial);
+  applyLang(isLang(saved) ? saved : 'en');
 
   document.querySelectorAll<HTMLButtonElement>('[data-lang-btn]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      applyLang(btn.dataset.langBtn === 'hi' ? 'hi' : 'en');
+      const next = btn.dataset.langBtn;
+      applyLang(isLang(next) ? next : 'en');
     });
   });
 }
