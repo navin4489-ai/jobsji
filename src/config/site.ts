@@ -3,8 +3,8 @@
  * Same env vars + defaults as astro.config.mjs.
  * Import only from server-side code (Astro frontmatter), never from client scripts.
  */
-export const SITE_URL = (process.env.SITE_URL || 'https://navin4489-ai.github.io').replace(/\/+$/, '');
-export const BASE_PATH = process.env.BASE_PATH ?? '/jobsji';
+export const SITE_URL = (process.env.SITE_URL || 'https://jobsji.in').replace(/\/+$/, '');
+export const BASE_PATH = process.env.BASE_PATH ?? '/';
 
 export const SITE_NAME = 'Jobsji';
 export const SITE_TAGLINE = 'Find jobs that match your skills';

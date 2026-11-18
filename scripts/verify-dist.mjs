@@ -10,7 +10,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const DIST = resolve(process.cwd(), 'dist');
-const BASE = process.env.BASE_PATH || '/jobsji';
+const BASE = process.env.BASE_PATH ?? '/';
 const errors = [];
 const warnings = [];
 
@@ -97,12 +97,13 @@ const sitemapFiles = files.filter((f) => /sitemap.*\.xml$/.test(f));
 if (sitemapFiles.length === 0) errors.push('sitemap missing from dist/');
 else {
   const sitemap = sitemapFiles.map((f) => readFileSync(f, 'utf8')).join('\n');
+  const prefix = BASE === '/' ? '' : BASE;
   const jobUrls = jobPages.map((f) => {
     const rel = f
       .replace(`${DIST}`, '')
       .replace(/\\/g, '/')
       .replace(/\/index\.html$/, '');
-    return `${BASE}${rel}`;
+    return `${prefix}${rel}`;
   });
   for (const url of jobUrls) {
     if (!sitemap.includes(url)) errors.push(`job missing from sitemap: ${url}`);

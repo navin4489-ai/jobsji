@@ -36,8 +36,11 @@ jobs:
       - name: Build site
         run: npm run build
         env:
-          SITE_URL: https://navin4489-ai.github.io
-          BASE_PATH: /jobsji
+          # Switch back only if the github.io fallback is needed again:
+          # SITE_URL: https://navin4489-ai.github.io
+          # BASE_PATH: /jobsji
+          SITE_URL: https://jobsji.in
+          BASE_PATH: /
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
